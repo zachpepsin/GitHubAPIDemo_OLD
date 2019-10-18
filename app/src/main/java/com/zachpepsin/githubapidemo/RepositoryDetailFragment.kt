@@ -161,13 +161,13 @@ class RepositoryDetailFragment : Fragment() {
                 "open" -> holder.idView.setTextColor(
                     ContextCompat.getColor(
                         holder.idView.context,
-                        android.R.color.holo_green_dark
+                        R.color.stateOpen
                     )
                 )
                 "closed" -> holder.idView.setTextColor(
                     ContextCompat.getColor(
                         holder.idView.context,
-                        android.R.color.holo_red_dark
+                        R.color.stateClosed
                     )
                 )
                 else -> Log.wtf(
