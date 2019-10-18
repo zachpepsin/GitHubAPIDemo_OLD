@@ -6,8 +6,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.activity_repository_detail.*
@@ -30,7 +28,7 @@ class RepositoryDetailFragment : Fragment() {
      */
     private var item: Repositories.RepositoryItem? = null
 
-    private var tempDataset = Repositories()
+    private var tempDataset = Issues()
 
     private var repoName: String? = null
 
@@ -125,7 +123,7 @@ class RepositoryDetailFragment : Fragment() {
     }
 
     class SimpleItemRecyclerViewAdapter(
-        private val values: List<Repositories.RepositoryItem>
+        private val values: List<Issues.IssueItem>
     ) :
         RecyclerView.Adapter<SimpleItemRecyclerViewAdapter.ViewHolder>() {
 
@@ -185,7 +183,8 @@ class RepositoryDetailFragment : Fragment() {
                 tempDataset.addItem(
                     jsonRepo.getString("id"),
                     jsonRepo.getString("title"),
-                    jsonRepo.getString("body")
+                    jsonRepo.getString("body"),
+                    jsonRepo.getString("state")
                 )
             }
 

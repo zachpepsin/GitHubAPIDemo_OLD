@@ -2,18 +2,17 @@ package com.zachpepsin.githubapidemo
 
 import java.util.*
 
-class Repositories {
-
+class Issues {
     /**
      * An array of sample (dummy) items.
      */
-    val ITEMS: MutableList<RepositoryItem> = ArrayList()
+    val ITEMS: MutableList<IssueItem> = ArrayList()
 
 
     /**
      * A map of sample (dummy) items, by ID.
      */
-    val ITEM_MAP: MutableMap<String, RepositoryItem> = HashMap()
+    val ITEM_MAP: MutableMap<String, IssueItem> = HashMap()
 
 
     private val COUNT = 25
@@ -27,19 +26,19 @@ class Repositories {
     }
      */
 
-    private fun addItem(item: RepositoryItem) {
+    private fun addItem(item: IssueItem) {
         ITEMS.add(item)
         ITEM_MAP.put(item.id, item)
     }
 
-    fun addItem(id: String, content: String, details: String) {
-        val item = RepositoryItem(id, content, details)
+    fun addItem(id: String, content: String, details: String, state: String) {
+        val item = IssueItem(id, content, details, state)
         ITEMS.add(item)
         ITEM_MAP.put(item.id, item)
     }
 
-    private fun createDummyItem(position: Int): RepositoryItem {
-        return RepositoryItem(position.toString(), "Item " + position, makeDetails(position))
+    private fun createDummyItem(position: Int): IssueItem {
+        return IssueItem(position.toString(), "Item " + position, makeDetails(position), "open")
     }
 
     private fun makeDetails(position: Int): String {
@@ -54,8 +53,12 @@ class Repositories {
     /**
      * A dummy item representing a piece of content.
      */
-    data class RepositoryItem(val id: String, val content: String, val details: String) {
+    data class IssueItem(
+        val id: String,
+        val content: String,
+        val details: String,
+        val state: String
+    ) {
         override fun toString(): String = content
     }
-
 }
