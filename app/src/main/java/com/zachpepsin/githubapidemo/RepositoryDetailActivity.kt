@@ -3,8 +3,9 @@ package com.zachpepsin.githubapidemo
 import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.activity_repository_detail.*
 
 /**
@@ -21,8 +22,23 @@ class RepositoryDetailActivity : AppCompatActivity() {
         setSupportActionBar(detail_toolbar)
 
         fab.setOnClickListener { view ->
+
+            /*
             Snackbar.make(view, "Replace with your own detail action", Snackbar.LENGTH_LONG)
                 .setAction("Action", null).show()
+            */
+
+            // TODO replace hard coded text with string definitions
+            val builder = AlertDialog.Builder(this)
+                .setTitle("Filter issues")
+                .setSingleChoiceItems(arrayOf("All", "Open", "Closed"), -1) { dialog, which ->
+                    dialog.dismiss()
+                }
+            // Create the alert dialog using builder
+            val dialog: AlertDialog = builder.create()
+
+            // Display the alert dialog
+            dialog.show()
         }
 
         // Show the Up button in the action bar.

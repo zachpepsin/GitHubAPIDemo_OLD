@@ -6,6 +6,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.activity_repository_detail.*
@@ -80,7 +82,7 @@ class RepositoryDetailFragment : Fragment() {
         setupRecyclerView(issues_list)
 
         // Execute HTTP Request to retrieve issues list
-        run("https://api.github.com/repos/google/$repoName/issues")
+        run("https://api.github.com/repos/google/$repoName/issues?state=all")
     }
 
     private fun run(url: String) {
