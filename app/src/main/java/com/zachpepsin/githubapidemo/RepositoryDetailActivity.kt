@@ -2,9 +2,9 @@ package com.zachpepsin.githubapidemo
 
 import android.content.Intent
 import android.os.Bundle
-import com.google.android.material.snackbar.Snackbar
-import androidx.appcompat.app.AppCompatActivity
 import android.view.MenuItem
+import androidx.appcompat.app.AppCompatActivity
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.activity_repository_detail.*
 
 /**
@@ -45,6 +45,10 @@ class RepositoryDetailActivity : AppCompatActivity() {
                     putString(
                         RepositoryDetailFragment.ARG_ITEM_ID,
                         intent.getStringExtra(RepositoryDetailFragment.ARG_ITEM_ID)
+                    )
+                    putString(
+                        RepositoryDetailFragment.ARG_REPO_NAME,
+                        intent.getStringExtra(RepositoryDetailFragment.ARG_REPO_NAME)
                     )
                 }
             }

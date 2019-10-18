@@ -1,13 +1,12 @@
 package com.zachpepsin.githubapidemo
 
-import java.util.ArrayList
-import java.util.HashMap
+import java.util.*
 
 /**
  * Helper class for providing sample content for user interfaces created by
  * Android template wizards.
  */
-object Repositories {
+class Repositories {
 
     /**
      * An array of sample (dummy) items.

@@ -9,8 +9,8 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.activity_repository_detail.*
+import kotlinx.android.synthetic.main.issues_list_content.view.*
 import kotlinx.android.synthetic.main.repository_detail.*
-import kotlinx.android.synthetic.main.repository_list_content.view.*
 import okhttp3.*
 import org.json.JSONArray
 import java.io.IOException
@@ -28,7 +28,9 @@ class RepositoryDetailFragment : Fragment() {
      */
     private var item: Repositories.RepositoryItem? = null
 
-    private var tempDataset: Repositories = Repositories
+    private var tempDataset = Repositories()
+
+    private var repoName: String? = null
 
     private val client = OkHttpClient()
 
@@ -36,12 +38,23 @@ class RepositoryDetailFragment : Fragment() {
         super.onCreate(savedInstanceState)
 
         arguments?.let {
+            /*
             if (it.containsKey(ARG_ITEM_ID)) {
                 // Load the repository content specified by the fragment
                 // arguments. In a real-world scenario, use a Loader
                 // to load content from a content provider.
-                item = Repositories.ITEM_MAP[it.getString(ARG_ITEM_ID)]
+                item = tempDataset.ITEM_MAP[it.getString(ARG_ITEM_ID)]
                 activity?.toolbar_layout?.title = item?.content
+            }
+             */
+            if (it.containsKey(ARG_REPO_NAME) && !it.getString(ARG_REPO_NAME).isNullOrEmpty()) {
+                // Load the repository content specified by the fragment
+                // arguments. In a real-world scenario, use a Loader
+                // to load content from a content provider.
+                repoName = it.getString(ARG_REPO_NAME)
+                activity?.toolbar_layout?.title = repoName
+            } else {
+                // TODO A repo name was not passed into the fragment
             }
         }
 
@@ -66,9 +79,8 @@ class RepositoryDetailFragment : Fragment() {
 
         setupRecyclerView(issues_list)
 
-        // Execute HTTP Request
-        // TODO change acme to repo name that was clicked
-        run("https://api.github.com/repos/google/acme/issues")
+        // Execute HTTP Request to retrieve issues list
+        run("https://api.github.com/repos/google/$repoName/issues")
     }
 
     private fun run(url: String) {
@@ -105,8 +117,9 @@ class RepositoryDetailFragment : Fragment() {
     private fun setupRecyclerView(recyclerView: RecyclerView) {
         //recyclerView.adapter = SimpleItemRecyclerViewAdapter(this, DummyContent.ITEMS, twoPane)
 
+        //Repositories.ITEMS.clear()
         recyclerView.adapter =
-            SimpleItemRecyclerViewAdapter(Repositories.ITEMS)
+            SimpleItemRecyclerViewAdapter(tempDataset.ITEMS)
     }
 
     class SimpleItemRecyclerViewAdapter(
@@ -196,5 +209,6 @@ class RepositoryDetailFragment : Fragment() {
          * represents.
          */
         const val ARG_ITEM_ID = "item_id"
+        const val ARG_REPO_NAME = "repo_name"
     }
 }

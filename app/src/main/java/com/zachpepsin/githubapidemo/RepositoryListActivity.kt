@@ -34,7 +34,7 @@ class RepositoryListActivity : AppCompatActivity(), OnRepoClickListener {
      */
     private var twoPane: Boolean = false
 
-    private var tempDataset: Repositories = Repositories
+    private var tempDataset = Repositories()
 
     private val client = OkHttpClient()
 
@@ -98,7 +98,7 @@ class RepositoryListActivity : AppCompatActivity(), OnRepoClickListener {
     private fun setupRecyclerView(recyclerView: RecyclerView) {
         //recyclerView.adapter = SimpleItemRecyclerViewAdapter(this, DummyContent.ITEMS, twoPane)
 
-        recyclerView.adapter = SimpleItemRecyclerViewAdapter(this, Repositories.ITEMS, twoPane)
+        recyclerView.adapter = SimpleItemRecyclerViewAdapter(this, tempDataset.ITEMS, twoPane)
     }
 
     class SimpleItemRecyclerViewAdapter(
@@ -116,7 +116,8 @@ class RepositoryListActivity : AppCompatActivity(), OnRepoClickListener {
                 if (twoPane) {
                     val fragment = RepositoryDetailFragment().apply {
                         arguments = Bundle().apply {
-                            putString(RepositoryDetailFragment.ARG_ITEM_ID, item.id)
+                            //putString(RepositoryDetailFragment.ARG_ITEM_ID, item.id)
+                            putString(RepositoryDetailFragment.ARG_REPO_NAME, item.content)
                         }
                     }
                     parentActivity.supportFragmentManager
@@ -125,7 +126,8 @@ class RepositoryListActivity : AppCompatActivity(), OnRepoClickListener {
                         .commit()
                 } else {
                     val intent = Intent(v.context, RepositoryDetailActivity::class.java).apply {
-                        putExtra(RepositoryDetailFragment.ARG_ITEM_ID, item.id)
+                        //putExtra(RepositoryDetailFragment.ARG_ITEM_ID, item.id)
+                        putExtra(RepositoryDetailFragment.ARG_REPO_NAME, item.content)
                     }
                     v.context.startActivity(intent)
                 }
