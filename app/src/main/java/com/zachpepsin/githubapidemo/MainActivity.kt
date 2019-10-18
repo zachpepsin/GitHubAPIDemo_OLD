@@ -1,9 +1,16 @@
 package com.zachpepsin.githubapidemo
 
+import android.os.AsyncTask
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import okhttp3.*
+import org.json.JSONArray
+import org.json.JSONException
+import org.json.JSONObject
+import java.io.IOException
 
 class MainActivity : AppCompatActivity() {
 
@@ -11,13 +18,17 @@ class MainActivity : AppCompatActivity() {
     private lateinit var viewAdapter: RecyclerView.Adapter<*>
     private lateinit var viewManager: RecyclerView.LayoutManager
 
+    private var tempDataset:ArrayList<String> = ArrayList()
+
+    private val client = OkHttpClient()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         viewManager = LinearLayoutManager(this)
 
-        val tempDataset = arrayOf("One", "Two", "Three")
+        //val tempDataset = arrayOf("One", "Two", "Three")
         viewAdapter = RecyclerAdapter(tempDataset)
 
         recyclerView = findViewById<RecyclerView>(R.id.recycler_main).apply {
@@ -32,5 +43,71 @@ class MainActivity : AppCompatActivity() {
             adapter = viewAdapter
 
         }
+
+        // Execute HTTP Request
+        run("https://api.github.com/users/google/repos?page=1&per_page=100")
+
     }
+
+    private fun run(url: String) {
+        val request = Request.Builder()
+            .url(url)
+            .build()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {}
+            //override fun onResponse(call: Call, response: Response) = println(response.body()?.string())
+
+
+            override fun onResponse(call: Call?, response: Response) {
+                val responseData = response.body()?.string()
+                getData().execute(responseData)
+                /*
+                runOnUiThread{
+                    try {
+                        var json = JSONObject(responseData)
+                        println("Request Successful!!")
+                        println(json)
+                        val responseObject = json.getJSONObject("response")
+                        val docs = json.getJSONArray("docs")
+                        this@MainActivity.fetchComplete()
+                    } catch (e: JSONException) {
+                        e.printStackTrace()
+                    }
+                }
+                 */
+            }
+        })
+    }
+
+    inner class getData() : AsyncTask<String, Void, String>() {
+
+        override fun doInBackground(vararg params: String): String? {
+
+            val response = params[0]
+            val rootArray = JSONArray(response)
+
+            //var repoNames:ArrayList<String> = ArrayList()
+
+            for (i in 0 until rootArray.length()) {
+                val jsonRepo = rootArray.getJSONObject(i)
+                tempDataset.add(jsonRepo.getString("name"))
+            }
+
+            //tempDataset[0] = rootArray.get(0).toString()
+            return "temp"
+        }
+
+        override fun onPreExecute() {
+            super.onPreExecute()
+        }
+
+        override fun onPostExecute(result: String?) {
+            super.onPostExecute(result)
+            viewAdapter.notifyDataSetChanged()
+        }
+    }
+
 }
+
+

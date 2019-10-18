@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.item_recycler.view.*
 
-class RecyclerAdapter(private val myDataset: Array<String>) :
+class RecyclerAdapter(private val myDataset: ArrayList<String>) :
     RecyclerView.Adapter<RecyclerAdapter.ViewHolder>() {
 
     // Provide a reference to the views for each data item
