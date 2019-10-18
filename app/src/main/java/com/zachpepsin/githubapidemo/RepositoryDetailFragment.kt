@@ -151,7 +151,7 @@ class RepositoryDetailFragment : Fragment() {
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
             val item = values[position]
-            holder.idView.text = item.id
+            holder.idView.text = item.number
             holder.contentView.text = item.content
 
             with(holder.itemView) {
@@ -179,9 +179,10 @@ class RepositoryDetailFragment : Fragment() {
 
             for (i in 0 until rootArray.length()) {
                 val jsonRepo = rootArray.getJSONObject(i)
-                //tempDataset.add(jsonRepo.getString("name"))
+                //tempDataset.add(jsonRepo.getString("name"))\
                 tempDataset.addItem(
                     jsonRepo.getString("id"),
+                    jsonRepo.getString("number"),
                     jsonRepo.getString("title"),
                     jsonRepo.getString("body"),
                     jsonRepo.getString("state")

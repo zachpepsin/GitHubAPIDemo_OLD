@@ -31,14 +31,14 @@ class Issues {
         ITEM_MAP.put(item.id, item)
     }
 
-    fun addItem(id: String, content: String, details: String, state: String) {
-        val item = IssueItem(id, content, details, state)
+    fun addItem(id: String, number: String, content: String, details: String, state: String) {
+        val item = IssueItem(id, number, content, details, state)
         ITEMS.add(item)
         ITEM_MAP.put(item.id, item)
     }
 
     private fun createDummyItem(position: Int): IssueItem {
-        return IssueItem(position.toString(), "Item " + position, makeDetails(position), "open")
+        return IssueItem(position.toString(), position.toString(), "Item " + position, makeDetails(position), "open")
     }
 
     private fun makeDetails(position: Int): String {
@@ -55,6 +55,7 @@ class Issues {
      */
     data class IssueItem(
         val id: String,
+        val number: String,
         val content: String,
         val details: String,
         val state: String
