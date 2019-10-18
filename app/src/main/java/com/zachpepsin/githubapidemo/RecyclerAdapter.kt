@@ -1,12 +1,14 @@
 package com.zachpepsin.githubapidemo
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.item_recycler.view.*
 
-class RecyclerAdapter(private val myDataset: ArrayList<String>) :
+class RecyclerAdapter(private val myDataset: ArrayList<String>, val itemClickListener: OnRepoClickListener) :
     RecyclerView.Adapter<RecyclerAdapter.ViewHolder>() {
 
     // Provide a reference to the views for each data item
@@ -16,7 +18,16 @@ class RecyclerAdapter(private val myDataset: ArrayList<String>) :
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
 
         // Holds the TextView that will set for each item
-        val textHeader = view.text_header
+        private val textHeader = view.text_header
+
+        fun bind(dataItem: String,clickListener: OnRepoClickListener)
+        {
+            textHeader.text = dataItem
+
+            itemView.setOnClickListener {
+                clickListener.onRepoClicked(dataItem)
+            }
+        }
     }
 
     // Create new views (invoked by the layout manager)
@@ -36,10 +47,17 @@ class RecyclerAdapter(private val myDataset: ArrayList<String>) :
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
-        holder.textHeader.text = myDataset[position]
+
+        //holder.textHeader.text = myDataset[position]
+
+        holder.bind(myDataset[position], itemClickListener)
     }
 
     // Return the size of your dataset (invoked by the layout manager)
     override fun getItemCount() = myDataset.size
 
+}
+
+interface OnRepoClickListener{
+    fun onRepoClicked(dataItem: String)
 }

@@ -2,23 +2,21 @@ package com.zachpepsin.githubapidemo
 
 import android.os.AsyncTask
 import android.os.Bundle
-import android.util.Log
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import okhttp3.*
 import org.json.JSONArray
-import org.json.JSONException
-import org.json.JSONObject
 import java.io.IOException
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), OnRepoClickListener {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var viewAdapter: RecyclerView.Adapter<*>
     private lateinit var viewManager: RecyclerView.LayoutManager
 
-    private var tempDataset:ArrayList<String> = ArrayList()
+    private var tempDataset: ArrayList<String> = ArrayList()
 
     private val client = OkHttpClient()
 
@@ -29,7 +27,7 @@ class MainActivity : AppCompatActivity() {
         viewManager = LinearLayoutManager(this)
 
         //val tempDataset = arrayOf("One", "Two", "Three")
-        viewAdapter = RecyclerAdapter(tempDataset)
+        viewAdapter = RecyclerAdapter(tempDataset, this)
 
         recyclerView = findViewById<RecyclerView>(R.id.recycler_main).apply {
             // use this setting to improve performance if you know that changes
@@ -108,6 +106,10 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    // Handle an item in the recyclerView being clicked
+    override fun onRepoClicked(dataItem: String) {
+        Toast.makeText(this, dataItem, Toast.LENGTH_SHORT).show()
+    }
 }
 
 
