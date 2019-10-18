@@ -2,10 +2,12 @@ package com.zachpepsin.githubapidemo
 
 import android.os.AsyncTask
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.activity_repository_detail.*
@@ -154,6 +156,27 @@ class RepositoryDetailFragment : Fragment() {
             holder.idView.text = item.number
             holder.contentView.text = item.content
 
+            // Set the number text to green/red depending on if the issue state is open/closed
+            when (item.state) {
+                "open" -> holder.idView.setTextColor(
+                    ContextCompat.getColor(
+                        holder.idView.context,
+                        android.R.color.holo_green_dark
+                    )
+                )
+                "closed" -> holder.idView.setTextColor(
+                    ContextCompat.getColor(
+                        holder.idView.context,
+                        android.R.color.holo_red_dark
+                    )
+                )
+                else -> Log.wtf(
+                    // Class state should always be either 'open' or 'closed', per GitHub API
+                    RepositoryDetailFragment::class.java.simpleName,
+                    "Issue state is neither \"open\" nor \"closed\""
+                )
+            }
+
             with(holder.itemView) {
                 tag = item
                 setOnClickListener(onClickListener)
@@ -199,7 +222,7 @@ class RepositoryDetailFragment : Fragment() {
 
         override fun onPostExecute(result: String?) {
             super.onPostExecute(result)
-            
+
             // Check to make sure we still have this view, since the fragment could be destroyed
             if (issues_list != null)
                 issues_list.adapter?.notifyDataSetChanged()
