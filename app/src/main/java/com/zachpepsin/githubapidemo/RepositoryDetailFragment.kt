@@ -199,9 +199,10 @@ class RepositoryDetailFragment : Fragment() {
 
         override fun onPostExecute(result: String?) {
             super.onPostExecute(result)
-
-            issues_list.adapter?.notifyDataSetChanged()
-            //viewAdapter.notifyDataSetChanged()
+            
+            // Check to make sure we still have this view, since the fragment could be destroyed
+            if (issues_list != null)
+                issues_list.adapter?.notifyDataSetChanged()
         }
     }
 
