@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
+
+<!--
 <TextView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/repository_detail"
@@ -7,4 +9,19 @@
     android:layout_height="match_parent"
     android:padding="16dp"
     android:textIsSelectable="true"
-    tools:context=".RepositoryDetailFragment" />
+    tools:context=".RepositoryDetailFragment"
+    android:text="example"/>
+    -->
+
+<androidx.recyclerview.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:app="http://schemas.android.com/apk/res-auto"
+xmlns:tools="http://schemas.android.com/tools"
+android:id="@+id/issues_list"
+android:name="com.zachpepsin.githubapidemo.RepositoryDetailListFragment"
+android:layout_width="match_parent"
+android:layout_height="match_parent"
+android:layout_marginLeft="16dp"
+android:layout_marginRight="16dp"
+app:layoutManager="LinearLayoutManager"
+tools:context=".RepositoryDetailFragment"
+tools:listitem="@layout/issues_list_content" />

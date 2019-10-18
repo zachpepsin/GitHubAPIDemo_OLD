@@ -11,7 +11,6 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
-import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.activity_repository_list.*
 import kotlinx.android.synthetic.main.repository_list.*
 import kotlinx.android.synthetic.main.repository_list_content.view.*
@@ -171,7 +170,11 @@ class RepositoryListActivity : AppCompatActivity(), OnRepoClickListener {
             for (i in 0 until rootArray.length()) {
                 val jsonRepo = rootArray.getJSONObject(i)
                 //tempDataset.add(jsonRepo.getString("name"))
-                tempDataset.addItem(jsonRepo.getString("id"), jsonRepo.getString("name"), jsonRepo.getString("description"))
+                tempDataset.addItem(
+                    jsonRepo.getString("id"),
+                    jsonRepo.getString("name"),
+                    jsonRepo.getString("description")
+                )
             }
 
             //tempDataset[0] = rootArray.get(0).toString()
@@ -191,6 +194,7 @@ class RepositoryListActivity : AppCompatActivity(), OnRepoClickListener {
     }
 
     // Handle an item in the recyclerView being clicked
+    // Example: https://github.com/ngengesenior/RecyclerViewClickListener/blob/master/app/src/main/java/com/example/ngenge/recyclerviewclicklistener/MainActivity.kt
     override fun onRepoClicked(dataItem: String) {
         Toast.makeText(this, dataItem, Toast.LENGTH_SHORT).show()
     }

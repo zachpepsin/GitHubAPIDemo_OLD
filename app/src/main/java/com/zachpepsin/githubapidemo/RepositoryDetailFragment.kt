@@ -1,13 +1,19 @@
 package com.zachpepsin.githubapidemo
 
+import android.os.AsyncTask
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.zachpepsin.githubapidemo.dummy.DummyContent
+import android.widget.TextView
+import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.activity_repository_detail.*
-import kotlinx.android.synthetic.main.repository_detail.view.*
+import kotlinx.android.synthetic.main.repository_detail.*
+import kotlinx.android.synthetic.main.repository_list_content.view.*
+import okhttp3.*
+import org.json.JSONArray
+import java.io.IOException
 
 /**
  * A fragment representing a single Repositories detail screen.
@@ -18,22 +24,27 @@ import kotlinx.android.synthetic.main.repository_detail.view.*
 class RepositoryDetailFragment : Fragment() {
 
     /**
-     * The dummy content this fragment is presenting.
+     * The repository content this fragment is presenting.
      */
-    private var item: DummyContent.DummyItem? = null
+    private var item: Repositories.RepositoryItem? = null
+
+    private var tempDataset: Repositories = Repositories
+
+    private val client = OkHttpClient()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         arguments?.let {
             if (it.containsKey(ARG_ITEM_ID)) {
-                // Load the dummy content specified by the fragment
+                // Load the repository content specified by the fragment
                 // arguments. In a real-world scenario, use a Loader
                 // to load content from a content provider.
-                item = DummyContent.ITEM_MAP[it.getString(ARG_ITEM_ID)]
+                item = Repositories.ITEM_MAP[it.getString(ARG_ITEM_ID)]
                 activity?.toolbar_layout?.title = item?.content
             }
         }
+
     }
 
     override fun onCreateView(
@@ -42,12 +53,141 @@ class RepositoryDetailFragment : Fragment() {
     ): View? {
         val rootView = inflater.inflate(R.layout.repository_detail, container, false)
 
-        // Show the dummy content as text in a TextView.
+        // Show the repository content as text in a TextView.
         item?.let {
-            rootView.repository_detail.text = it.details
+            //rootView.repository_detail.text = it.details
         }
 
         return rootView
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        setupRecyclerView(issues_list)
+
+        // Execute HTTP Request
+        // TODO change acme to repo name that was clicked
+        run("https://api.github.com/repos/google/acme/issues")
+    }
+
+    private fun run(url: String) {
+        val request = Request.Builder()
+            .url(url)
+            .build()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {}
+            //override fun onResponse(call: Call, response: Response) = println(response.body()?.string())
+
+
+            override fun onResponse(call: Call?, response: Response) {
+                val responseData = response.body()?.string()
+                getData().execute(responseData)
+                /*
+                runOnUiThread{
+                    try {
+                        var json = JSONObject(responseData)
+                        println("Request Successful!!")
+                        println(json)
+                        val responseObject = json.getJSONObject("response")
+                        val docs = json.getJSONArray("docs")
+                        this@MainActivity.fetchComplete()
+                    } catch (e: JSONException) {
+                        e.printStackTrace()
+                    }
+                }
+                 */
+            }
+        })
+    }
+
+    private fun setupRecyclerView(recyclerView: RecyclerView) {
+        //recyclerView.adapter = SimpleItemRecyclerViewAdapter(this, DummyContent.ITEMS, twoPane)
+
+        recyclerView.adapter =
+            SimpleItemRecyclerViewAdapter(Repositories.ITEMS)
+    }
+
+    class SimpleItemRecyclerViewAdapter(
+        private val values: List<Repositories.RepositoryItem>
+    ) :
+        RecyclerView.Adapter<SimpleItemRecyclerViewAdapter.ViewHolder>() {
+
+        private val onClickListener: View.OnClickListener
+
+        init {
+            onClickListener = View.OnClickListener { v ->
+
+                // Handle clicking on an issue
+                /*
+                val item = v.tag as Repositories.RepositoryItem
+                val intent = Intent(v.context, RepositoryDetailActivity::class.java).apply {
+                    putExtra(ARG_ITEM_ID, item.id)
+                }
+                v.context.startActivity(intent)
+                */
+            }
+        }
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+            val view = LayoutInflater.from(parent.context)
+                .inflate(R.layout.issues_list_content, parent, false)
+            return ViewHolder(view)
+        }
+
+        override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+            val item = values[position]
+            holder.idView.text = item.id
+            holder.contentView.text = item.content
+
+            with(holder.itemView) {
+                tag = item
+                setOnClickListener(onClickListener)
+            }
+        }
+
+        override fun getItemCount() = values.size
+
+        inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+            val idView: TextView = view.id_text
+            val contentView: TextView = view.content
+        }
+    }
+
+    inner class getData() : AsyncTask<String, Void, String>() {
+
+        override fun doInBackground(vararg params: String): String? {
+
+            val response = params[0]
+            val rootArray = JSONArray(response)
+
+            //var repoNames:ArrayList<String> = ArrayList()
+
+            for (i in 0 until rootArray.length()) {
+                val jsonRepo = rootArray.getJSONObject(i)
+                //tempDataset.add(jsonRepo.getString("name"))
+                tempDataset.addItem(
+                    jsonRepo.getString("id"),
+                    jsonRepo.getString("title"),
+                    jsonRepo.getString("body")
+                )
+            }
+
+            //tempDataset[0] = rootArray.get(0).toString()
+            return "temp"
+        }
+
+        override fun onPreExecute() {
+            super.onPreExecute()
+        }
+
+        override fun onPostExecute(result: String?) {
+            super.onPostExecute(result)
+
+            issues_list.adapter?.notifyDataSetChanged()
+            //viewAdapter.notifyDataSetChanged()
+        }
     }
 
     companion object {
