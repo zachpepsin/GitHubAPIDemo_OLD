@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">GitHubAPIDemo</string>
+    <string name="title_repository_list">Repositories</string>
+    <string name="title_repository_detail">Repository Detail</string>
 </resources>
