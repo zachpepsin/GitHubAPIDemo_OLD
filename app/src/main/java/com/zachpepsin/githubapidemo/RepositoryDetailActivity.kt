@@ -33,6 +33,10 @@ class RepositoryDetailActivity : AppCompatActivity() {
                 .setSingleChoiceItems(arrayOf("All", "Open", "Closed"), -1) { dialog, which ->
                     // TODO Handle selection
 
+                    val fragment: RepositoryDetailFragment =
+                        supportFragmentManager.findFragmentByTag(RepositoryDetailFragment.ARG_REPO_NAME) as RepositoryDetailFragment
+                    fragment.setStateFilter("TEST")
+
                     dialog.dismiss()
                 }
             // Create the alert dialog using builder
@@ -71,7 +75,11 @@ class RepositoryDetailActivity : AppCompatActivity() {
             }
 
             supportFragmentManager.beginTransaction()
-                .add(R.id.repository_detail_container, fragment)
+                .add(
+                    R.id.repository_detail_container,
+                    fragment,
+                    RepositoryDetailFragment.ARG_REPO_NAME
+                )
                 .commit()
         }
     }

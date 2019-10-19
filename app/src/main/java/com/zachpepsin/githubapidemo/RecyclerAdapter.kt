@@ -1,15 +1,20 @@
 package com.zachpepsin.githubapidemo
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.item_recycler.view.*
 
-class RecyclerAdapter(private val myDataset: ArrayList<String>, val itemClickListener: OnRepoClickListener) :
+class RecyclerAdapter(
+    private val myDataset: ArrayList<String>,
+    val itemClickListener: OnRepoClickListener
+) :
     RecyclerView.Adapter<RecyclerAdapter.ViewHolder>() {
+
+    interface OnRepoClickListener {
+        fun onRepoClicked(dataItem: String)
+    }
 
     // Provide a reference to the views for each data item
     // Complex data items may need more than one view per item, and
@@ -20,8 +25,7 @@ class RecyclerAdapter(private val myDataset: ArrayList<String>, val itemClickLis
         // Holds the TextView that will set for each item
         private val textHeader = view.text_header
 
-        fun bind(dataItem: String,clickListener: OnRepoClickListener)
-        {
+        fun bind(dataItem: String, clickListener: OnRepoClickListener) {
             textHeader.text = dataItem
 
             itemView.setOnClickListener {
@@ -55,9 +59,5 @@ class RecyclerAdapter(private val myDataset: ArrayList<String>, val itemClickLis
 
     // Return the size of your dataset (invoked by the layout manager)
     override fun getItemCount() = myDataset.size
-
-    interface OnRepoClickListener{
-        fun onRepoClicked(dataItem: String)
-    }
 }
 
