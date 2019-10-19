@@ -36,12 +36,15 @@ class RepositoryListActivity : AppCompatActivity(), RecyclerAdapter.OnRepoClickL
      */
     private var twoPane: Boolean = false
 
-    private var isNewPageLoading = false
+    private var isPageLoading = false
 
     // Number of items before the bottom we have to reach when scrolling to start loading next page
     private val visibleThreshold = 2
-    private val lastVisibleItem = 0
-    private val totalItemCount = 0
+
+    // Number of repos to load per page (max of 100 per GitHub API)
+    private val itemsPerPageLoad = 25
+
+    private var pagesLoaded = 1
 
     var tempDataset = Repositories()
 
@@ -117,7 +120,9 @@ class RepositoryListActivity : AppCompatActivity(), RecyclerAdapter.OnRepoClickL
                 val totalItemCount = layoutManager.itemCount
                 val lastVisibleItem = layoutManager.findLastVisibleItemPosition()
 
-                if (!isNewPageLoading
+                // If we are within the threshold of the bottom of the list, and we are not
+                // already loading a new page of items, then load the next page of items
+                if (!isPageLoading
                     && totalItemCount <= (lastVisibleItem + visibleThreshold)
                 ) {
                     // End has been reached
@@ -128,14 +133,19 @@ class RepositoryListActivity : AppCompatActivity(), RecyclerAdapter.OnRepoClickL
                         Toast.LENGTH_SHORT
                     ).show()
 
-                    loadNewPage()
+                    loadNextPage()
                 }
             }
         })
     }
 
-    private fun loadNewPage() {
-        isNewPageLoading = true
+    private fun loadNextPage() {
+        isPageLoading = true
+
+        // Iterate tje pages loaded variable so we load the next page
+        pagesLoaded++
+
+        run("https://api.github.com/users/google/repos?page=$pagesLoaded&per_page=$itemsPerPageLoad")
     }
 
     class SimpleItemRecyclerViewAdapter(
@@ -197,7 +207,7 @@ class RepositoryListActivity : AppCompatActivity(), RecyclerAdapter.OnRepoClickL
     }
 
 
-    inner class getData() : AsyncTask<String, Void, String>() {
+    inner class getData : AsyncTask<String, Void, String>() {
 
         override fun doInBackground(vararg params: String): String? {
 
@@ -227,8 +237,14 @@ class RepositoryListActivity : AppCompatActivity(), RecyclerAdapter.OnRepoClickL
         override fun onPostExecute(result: String?) {
             super.onPostExecute(result)
 
-            repository_list.adapter?.notifyDataSetChanged()
-            //viewAdapter.notifyDataSetChanged()
+            // Get the range of items added to notify the dataset how many items were added
+            val firstItemAdded = (pagesLoaded-1)*itemsPerPageLoad
+            val lastItemAdded = (pagesLoaded)*itemsPerPageLoad - 1
+
+            repository_list.adapter?.notifyItemRangeInserted(firstItemAdded, lastItemAdded)
+
+            // We are done loading the page
+            isPageLoading = false
         }
     }
 
