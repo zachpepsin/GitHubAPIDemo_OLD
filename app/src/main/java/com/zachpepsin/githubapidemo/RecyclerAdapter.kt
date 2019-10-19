@@ -56,8 +56,8 @@ class RecyclerAdapter(private val myDataset: ArrayList<String>, val itemClickLis
     // Return the size of your dataset (invoked by the layout manager)
     override fun getItemCount() = myDataset.size
 
+    interface OnRepoClickListener{
+        fun onRepoClicked(dataItem: String)
+    }
 }
 
-interface OnRepoClickListener{
-    fun onRepoClicked(dataItem: String)
-}

@@ -10,7 +10,7 @@ import okhttp3.*
 import org.json.JSONArray
 import java.io.IOException
 
-class MainActivity : AppCompatActivity(), OnRepoClickListener {
+class MainActivity : AppCompatActivity(), RecyclerAdapter.OnRepoClickListener {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var viewAdapter: RecyclerView.Adapter<*>

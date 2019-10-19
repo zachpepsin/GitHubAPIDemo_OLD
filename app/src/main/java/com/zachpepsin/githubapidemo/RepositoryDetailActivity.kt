@@ -3,7 +3,6 @@ package com.zachpepsin.githubapidemo
 import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
-import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_repository_detail.*
@@ -32,6 +31,8 @@ class RepositoryDetailActivity : AppCompatActivity() {
             val builder = AlertDialog.Builder(this)
                 .setTitle("Filter issues")
                 .setSingleChoiceItems(arrayOf("All", "Open", "Closed"), -1) { dialog, which ->
+                    // TODO Handle selection
+
                     dialog.dismiss()
                 }
             // Create the alert dialog using builder
