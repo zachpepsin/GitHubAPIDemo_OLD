@@ -30,6 +30,17 @@
         tools:context="com.zachpepsin.githubapidemo.RepositoryListActivity"
         tools:listitem="@layout/repository_list_content" />
 
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="invisible"
+        android:background="@android:color/transparent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
     <FrameLayout
         android:id="@+id/repository_detail_container"
         android:layout_width="0dp"

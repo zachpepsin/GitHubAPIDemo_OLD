@@ -125,14 +125,7 @@ class RepositoryListActivity : AppCompatActivity(), RecyclerAdapter.OnRepoClickL
                 if (!isPageLoading
                     && totalItemCount <= (lastVisibleItem + visibleThreshold)
                 ) {
-                    // End has been reached
-                    // Do something
-                    Toast.makeText(
-                        this@RepositoryListActivity,
-                        "END OF LIST REACHED",
-                        Toast.LENGTH_SHORT
-                    ).show()
-
+                    // Load the next page of repos
                     loadNextPage()
                 }
             }
@@ -141,6 +134,8 @@ class RepositoryListActivity : AppCompatActivity(), RecyclerAdapter.OnRepoClickL
 
     private fun loadNextPage() {
         isPageLoading = true
+
+        progress_bar.visibility = View.VISIBLE
 
         // Iterate tje pages loaded variable so we load the next page
         pagesLoaded++
@@ -212,6 +207,10 @@ class RepositoryListActivity : AppCompatActivity(), RecyclerAdapter.OnRepoClickL
         override fun doInBackground(vararg params: String): String? {
 
             val response = params[0]
+
+            if (response.isEmpty()) {
+                // TODO handle not getting a response
+            }
             val rootArray = JSONArray(response)
 
             //var repoNames:ArrayList<String> = ArrayList()
@@ -238,13 +237,16 @@ class RepositoryListActivity : AppCompatActivity(), RecyclerAdapter.OnRepoClickL
             super.onPostExecute(result)
 
             // Get the range of items added to notify the dataset how many items were added
-            val firstItemAdded = (pagesLoaded-1)*itemsPerPageLoad
-            val lastItemAdded = (pagesLoaded)*itemsPerPageLoad - 1
+            val firstItemAdded = (pagesLoaded - 1) * itemsPerPageLoad
+            val lastItemAdded = (pagesLoaded) * itemsPerPageLoad - 1
 
             repository_list.adapter?.notifyItemRangeInserted(firstItemAdded, lastItemAdded)
 
             // We are done loading the page
             isPageLoading = false
+
+
+            progress_bar.visibility = View.INVISIBLE
         }
     }
 
