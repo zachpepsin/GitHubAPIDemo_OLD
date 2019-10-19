@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.activity_repository_list.*
@@ -17,6 +18,7 @@ import kotlinx.android.synthetic.main.repository_list_content.view.*
 import okhttp3.*
 import org.json.JSONArray
 import java.io.IOException
+
 
 /**
  * An activity representing a list of Pings. This activity
@@ -34,7 +36,14 @@ class RepositoryListActivity : AppCompatActivity(), RecyclerAdapter.OnRepoClickL
      */
     private var twoPane: Boolean = false
 
-    private var tempDataset = Repositories()
+    private var isNewPageLoading = false
+
+    // Number of items before the bottom we have to reach when scrolling to start loading next page
+    private val visibleThreshold = 2
+    private val lastVisibleItem = 0
+    private val totalItemCount = 0
+
+    var tempDataset = Repositories()
 
     private val client = OkHttpClient()
 
@@ -59,9 +68,6 @@ class RepositoryListActivity : AppCompatActivity(), RecyclerAdapter.OnRepoClickL
         }
 
         setupRecyclerView(repository_list)
-
-        // Execute HTTP Request
-        run("https://api.github.com/users/google/repos?page=1&per_page=100")
     }
 
     private fun run(url: String) {
@@ -99,6 +105,37 @@ class RepositoryListActivity : AppCompatActivity(), RecyclerAdapter.OnRepoClickL
         //recyclerView.adapter = SimpleItemRecyclerViewAdapter(this, DummyContent.ITEMS, twoPane)
 
         recyclerView.adapter = SimpleItemRecyclerViewAdapter(this, tempDataset.ITEMS, twoPane)
+
+        // Execute HTTP Request to load first batch of repos
+        run("https://api.github.com/users/google/repos?page=1&per_page=25")
+
+        // TODO add scroll ex; https://medium.com/@programmerasi/how-to-implement-load-more-in-recyclerview-3c6358297f4
+        recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                val layoutManager = recyclerView.layoutManager as LinearLayoutManager
+                val totalItemCount = layoutManager.itemCount
+                val lastVisibleItem = layoutManager.findLastVisibleItemPosition()
+
+                if (!isNewPageLoading
+                    && totalItemCount <= (lastVisibleItem + visibleThreshold)
+                ) {
+                    // End has been reached
+                    // Do something
+                    Toast.makeText(
+                        this@RepositoryListActivity,
+                        "END OF LIST REACHED",
+                        Toast.LENGTH_SHORT
+                    ).show()
+
+                    loadNewPage()
+                }
+            }
+        })
+    }
+
+    private fun loadNewPage() {
+        isNewPageLoading = true
     }
 
     class SimpleItemRecyclerViewAdapter(
