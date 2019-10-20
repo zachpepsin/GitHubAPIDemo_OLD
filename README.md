@@ -1,5 +1,5 @@
 # GitHubAPIDemo
-App dmeonstrating using the GitHubAPI
+App demonstrating using the GitHub API
 
 API: https://developer.github.com/v3/
 
