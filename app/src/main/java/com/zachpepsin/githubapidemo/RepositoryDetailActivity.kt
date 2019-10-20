@@ -15,7 +15,7 @@ import kotlinx.android.synthetic.main.activity_repository_detail.*
  */
 class RepositoryDetailActivity : AppCompatActivity() {
 
-    // State filter options
+    var selectedFilter = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,13 +34,14 @@ class RepositoryDetailActivity : AppCompatActivity() {
                 .setTitle(getString(R.string.filter_issues))
                 .setSingleChoiceItems(
                     resources.getStringArray(R.array.state_filter_options),
-                    -1
+                    selectedFilter
                 ) { dialog, which ->
                     // TODO Handle selection
 
                     val fragment: RepositoryDetailFragment =
                         supportFragmentManager.findFragmentByTag(RepositoryDetailFragment.ARG_REPO_NAME) as RepositoryDetailFragment
                     fragment.setStateFilter(resources.getStringArray(R.array.state_filter_options)[which])
+                    selectedFilter = which
 
                     dialog.dismiss()
                 }
