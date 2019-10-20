@@ -6,6 +6,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -34,6 +35,7 @@ class RepositoryDetailFragment : Fragment() {
     private var repoName: String? = null
     private var stateFilter: String = "all"
     private var isPageLoading = false
+    private lateinit var progressBarIssuesCenter: ProgressBar
 
     // Number of items before the bottom we have to reach when scrolling to start loading next page
     private val visibleThreshold = 2
@@ -87,6 +89,8 @@ class RepositoryDetailFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        progressBarIssuesCenter = view.findViewById(R.id.progress_bar_issue_center)
+
         setupRecyclerView(recycler_issues)
     }
 
@@ -100,28 +104,23 @@ class RepositoryDetailFragment : Fragment() {
             .url(url)
             .build()
 
-        client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {}
-            //override fun onResponse(call: Call, response: Response) = println(response.body()?.string())
+        progressBarIssuesCenter.visibility = View.VISIBLE  // Display the main progress bar
 
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                e.printStackTrace()
+                Log.e("Request Failed", e.message!!)
+            }
 
             override fun onResponse(call: Call?, response: Response) {
                 val responseData = response.body()?.string()
                 getData().execute(responseData)
-                /*
-                runOnUiThread{
-                    try {
-                        var json = JSONObject(responseData)
-                        println("Request Successful!!")
-                        println(json)
-                        val responseObject = json.getJSONObject("response")
-                        val docs = json.getJSONArray("docs")
-                        this@MainActivity.fetchComplete()
-                    } catch (e: JSONException) {
-                        e.printStackTrace()
-                    }
+
+                // Run view-related code back on the main thread
+                activity?.runOnUiThread {
+                    // Hide the main progress bar
+                    progressBarIssuesCenter.visibility = View.GONE
                 }
-                 */
             }
         })
     }
@@ -147,7 +146,7 @@ class RepositoryDetailFragment : Fragment() {
                     && totalItemCount <= (lastVisibleItem + visibleThreshold)
                 ) {
                     // Load the next page of repos
-                    progress_bar_issues.visibility = View.VISIBLE
+                    progress_bar_issues_page.visibility = View.VISIBLE
 
                     // Iterate the pages loaded counter so we load the next page
                     pagesLoaded++
@@ -264,7 +263,7 @@ class RepositoryDetailFragment : Fragment() {
             // Check to make sure we still have this view, since the fragment could be destroyed
             if (recycler_issues != null) {
                 recycler_issues.adapter?.notifyItemRangeInserted(firstItemAdded, lastItemAdded)
-                progress_bar_issues.visibility = View.INVISIBLE
+                progress_bar_issues_page.visibility = View.INVISIBLE
             }
 
             if (issuesDataset.ITEMS.size <= 0) {

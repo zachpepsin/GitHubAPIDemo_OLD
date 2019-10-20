@@ -22,22 +22,13 @@ class RepositoryDetailActivity : AppCompatActivity() {
         setContentView(R.layout.activity_repository_detail)
         setSupportActionBar(detail_toolbar)
 
-        fab.setOnClickListener { view ->
-
-            /*
-            Snackbar.make(view, "Replace with your own detail action", Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show()
-            */
-
-            // TODO replace hard coded text with string definitions
+        fab.setOnClickListener {
             val builder = AlertDialog.Builder(this)
                 .setTitle(getString(R.string.filter_issues))
                 .setSingleChoiceItems(
                     resources.getStringArray(R.array.state_filter_options),
                     selectedFilter
                 ) { dialog, which ->
-                    // TODO Handle selection
-
                     val fragment: RepositoryDetailFragment =
                         supportFragmentManager.findFragmentByTag(RepositoryDetailFragment.ARG_REPO_NAME) as RepositoryDetailFragment
                     fragment.setStateFilter(resources.getStringArray(R.array.state_filter_options)[which])
