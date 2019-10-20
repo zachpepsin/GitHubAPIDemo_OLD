@@ -15,6 +15,8 @@ import kotlinx.android.synthetic.main.activity_repository_detail.*
  */
 class RepositoryDetailActivity : AppCompatActivity() {
 
+    // State filter options
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_repository_detail)
@@ -29,13 +31,16 @@ class RepositoryDetailActivity : AppCompatActivity() {
 
             // TODO replace hard coded text with string definitions
             val builder = AlertDialog.Builder(this)
-                .setTitle("Filter issues")
-                .setSingleChoiceItems(arrayOf("All", "Open", "Closed"), -1) { dialog, which ->
+                .setTitle(getString(R.string.filter_issues))
+                .setSingleChoiceItems(
+                    resources.getStringArray(R.array.state_filter_options),
+                    -1
+                ) { dialog, which ->
                     // TODO Handle selection
 
                     val fragment: RepositoryDetailFragment =
                         supportFragmentManager.findFragmentByTag(RepositoryDetailFragment.ARG_REPO_NAME) as RepositoryDetailFragment
-                    fragment.setStateFilter("TEST")
+                    fragment.setStateFilter(resources.getStringArray(R.array.state_filter_options)[which])
 
                     dialog.dismiss()
                 }

@@ -7,7 +7,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
@@ -31,9 +30,11 @@ class RepositoryDetailFragment : Fragment() {
      */
     private var item: Repositories.RepositoryItem? = null
 
-    private var tempDataset = Issues()
+    private var issuesDataset = Issues()
 
     private var repoName: String? = null
+
+    private var stateFilter: String = "all"
 
     private val client = OkHttpClient()
 
@@ -46,7 +47,7 @@ class RepositoryDetailFragment : Fragment() {
                 // Load the repository content specified by the fragment
                 // arguments. In a real-world scenario, use a Loader
                 // to load content from a content provider.
-                item = tempDataset.ITEM_MAP[it.getString(ARG_ITEM_ID)]
+                item = issuesDataset.ITEM_MAP[it.getString(ARG_ITEM_ID)]
                 activity?.toolbar_layout?.title = item?.content
             }
              */
@@ -122,7 +123,7 @@ class RepositoryDetailFragment : Fragment() {
 
         //Repositories.ITEMS.clear()
         recyclerView.adapter =
-            SimpleItemRecyclerViewAdapter(tempDataset.ITEMS)
+            SimpleItemRecyclerViewAdapter(issuesDataset.ITEMS)
     }
 
     class SimpleItemRecyclerViewAdapter(
@@ -203,8 +204,8 @@ class RepositoryDetailFragment : Fragment() {
 
             for (i in 0 until rootArray.length()) {
                 val jsonRepo = rootArray.getJSONObject(i)
-                //tempDataset.add(jsonRepo.getString("name"))\
-                tempDataset.addItem(
+                //issuesDataset.add(jsonRepo.getString("name"))\
+                issuesDataset.addItem(
                     jsonRepo.getString("id"),
                     jsonRepo.getString("number"),
                     jsonRepo.getString("title"),
@@ -213,7 +214,7 @@ class RepositoryDetailFragment : Fragment() {
                 )
             }
 
-            //tempDataset[0] = rootArray.get(0).toString()
+            //issuesDataset[0] = rootArray.get(0).toString()
             return "temp"
         }
 
@@ -230,8 +231,30 @@ class RepositoryDetailFragment : Fragment() {
         }
     }
 
-    fun setStateFilter(state:String) {
-        Toast.makeText(context, state, Toast.LENGTH_SHORT).show()
+    fun setStateFilter(state: String) {
+
+        when (state) {
+            resources.getStringArray(R.array.state_filter_options)[0] -> {// All
+                // If selection is same as previous selection, we don't need to do anything
+                if (stateFilter == "all") return else stateFilter = "all"
+            }
+            resources.getStringArray(R.array.state_filter_options)[1] -> { // Open
+                // If selection is same as previous selection, we don't need to do anything
+                if (stateFilter == "open") return else stateFilter = "open"
+            }
+            resources.getStringArray(R.array.state_filter_options)[2] -> { // Closed
+                // If selection is same as previous selection, we don't need to do anything
+                if (stateFilter == "closed") return else stateFilter = "closed"
+            }
+        }
+
+        // Clear dataset and adapter before repopulating the recycler
+        val numItems = issuesDataset.ITEMS.size
+        issues_list.adapter?.notifyItemRangeRemoved(0, numItems)
+        issuesDataset.ITEMS.clear()
+
+        // Re-execute HTTP Request to retrieve issues list with filter
+        run("https://api.github.com/repos/google/$repoName/issues?state=$stateFilter")
     }
 
     companion object {

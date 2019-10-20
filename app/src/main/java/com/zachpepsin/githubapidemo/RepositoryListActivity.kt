@@ -46,7 +46,7 @@ class RepositoryListActivity : AppCompatActivity(), RecyclerAdapter.OnRepoClickL
 
     private var pagesLoaded = 1
 
-    var tempDataset = Repositories()
+    var repositoriesDataset = Repositories()
 
     private val client = OkHttpClient()
 
@@ -107,7 +107,8 @@ class RepositoryListActivity : AppCompatActivity(), RecyclerAdapter.OnRepoClickL
     private fun setupRecyclerView(recyclerView: RecyclerView) {
         //recyclerView.adapter = SimpleItemRecyclerViewAdapter(this, DummyContent.ITEMS, twoPane)
 
-        recyclerView.adapter = SimpleItemRecyclerViewAdapter(this, tempDataset.ITEMS, twoPane)
+        recyclerView.adapter =
+            SimpleItemRecyclerViewAdapter(this, repositoriesDataset.ITEMS, twoPane)
 
         // Execute HTTP Request to load first batch of repos
         run("https://api.github.com/users/google/repos?page=1&per_page=25")
@@ -217,15 +218,15 @@ class RepositoryListActivity : AppCompatActivity(), RecyclerAdapter.OnRepoClickL
 
             for (i in 0 until rootArray.length()) {
                 val jsonRepo = rootArray.getJSONObject(i)
-                //tempDataset.add(jsonRepo.getString("name"))
-                tempDataset.addItem(
+                //repositoriesDataset.add(jsonRepo.getString("name"))
+                repositoriesDataset.addItem(
                     jsonRepo.getString("id"),
                     jsonRepo.getString("name"),
                     jsonRepo.getString("description")
                 )
             }
 
-            //tempDataset[0] = rootArray.get(0).toString()
+            //repositoriesDataset[0] = rootArray.get(0).toString()
             return "temp"
         }
 

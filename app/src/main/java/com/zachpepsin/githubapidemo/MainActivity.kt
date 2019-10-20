@@ -26,7 +26,7 @@ class MainActivity : AppCompatActivity(), RecyclerAdapter.OnRepoClickListener {
 
         viewManager = LinearLayoutManager(this)
 
-        //val tempDataset = arrayOf("One", "Two", "Three")
+        //val repositoriesDataset = arrayOf("One", "Two", "Three")
         viewAdapter = RecyclerAdapter(tempDataset, this)
 
         recyclerView = findViewById<RecyclerView>(R.id.recycler_main).apply {
@@ -92,7 +92,7 @@ class MainActivity : AppCompatActivity(), RecyclerAdapter.OnRepoClickListener {
                 tempDataset.add(jsonRepo.getString("name"))
             }
 
-            //tempDataset[0] = rootArray.get(0).toString()
+            //repositoriesDataset[0] = rootArray.get(0).toString()
             return "temp"
         }
 

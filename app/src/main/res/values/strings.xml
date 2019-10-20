@@ -2,4 +2,11 @@
     <string name="app_name">GitHubAPIDemo</string>
     <string name="title_repository_list">Repositories</string>
     <string name="title_repository_detail">Repository Detail</string>
+
+    <string name="filter_issues">Filter issues</string>
+    <string-array name="state_filter_options">
+        <item>All</item>
+        <item>Open</item>
+        <item>Closed</item>
+    </string-array>
 </resources>
