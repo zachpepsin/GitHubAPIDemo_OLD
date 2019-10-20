@@ -91,6 +91,11 @@ class RepositoryDetailFragment : Fragment() {
     }
 
     private fun run(url: String) {
+        // If we are already making a call, don't run another simultaneously
+        if (isPageLoading) return
+
+        isPageLoading = true
+
         val request = Request.Builder()
             .url(url)
             .build()
@@ -142,7 +147,6 @@ class RepositoryDetailFragment : Fragment() {
                     && totalItemCount <= (lastVisibleItem + visibleThreshold)
                 ) {
                     // Load the next page of repos
-                    isPageLoading = true
                     progress_bar_issues.visibility = View.VISIBLE
 
                     // Iterate the pages loaded counter so we load the next page
