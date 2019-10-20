@@ -42,7 +42,7 @@ class RepositoryListActivity : AppCompatActivity(), RecyclerAdapter.OnRepoClickL
     private val visibleThreshold = 2
 
     // Number of repos to load per page (max of 100 per GitHub API)
-    private val itemsPerPageLoad = 25
+    private val itemsPerPageLoad = 50
 
     private var pagesLoaded = 1
 
