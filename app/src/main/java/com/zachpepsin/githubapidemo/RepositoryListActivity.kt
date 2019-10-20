@@ -8,7 +8,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -29,15 +28,12 @@ import java.io.IOException
  * item details. On tablets, the activity presents the list of items and
  * item details side-by-side using two vertical panes.
  */
-class RepositoryListActivity : AppCompatActivity(), RecyclerAdapter.OnRepoClickListener {
+class RepositoryListActivity : AppCompatActivity() {
 
-    /**
-     * Whether or not the activity is in two-pane mode, i.e. running on a tablet
-     * device.
-     */
+    // Whether or not the activity is in two-pane mode, i.e. running on a tablet device
     private var twoPane: Boolean = false
 
-    private var isPageLoading = false
+    private var isPageLoading = false // If a new page of items is currently being loaded
 
     // Number of items before the bottom we have to reach when scrolling to start loading next page
     private val visibleThreshold = 2
@@ -99,8 +95,6 @@ class RepositoryListActivity : AppCompatActivity(), RecyclerAdapter.OnRepoClickL
     }
 
     private fun setupRecyclerView(recyclerView: RecyclerView) {
-        //recyclerView.adapter = SimpleItemRecyclerViewAdapter(this, DummyContent.ITEMS, twoPane)
-
         recyclerView.adapter =
             SimpleItemRecyclerViewAdapter(this, repositoriesDataset.ITEMS, twoPane)
 
@@ -109,7 +103,6 @@ class RepositoryListActivity : AppCompatActivity(), RecyclerAdapter.OnRepoClickL
         // Execute HTTP Request to load first batch of repos
         run("https://api.github.com/users/google/repos?page=$pagesLoaded&per_page=$itemsPerPageLoad")
 
-        // TODO add scroll ex; https://medium.com/@programmerasi/how-to-implement-load-more-in-recyclerview-3c6358297f4
         // Add scroll listener to detect when the end of the list has been reached
         recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
@@ -211,8 +204,6 @@ class RepositoryListActivity : AppCompatActivity(), RecyclerAdapter.OnRepoClickL
                     jsonRepo.getString("description")
                 )
             }
-
-            //repositoriesDataset[0] = rootArray.get(0).toString()
             return "temp"
         }
 
@@ -235,11 +226,5 @@ class RepositoryListActivity : AppCompatActivity(), RecyclerAdapter.OnRepoClickL
 
             isPageLoading = false // We are done loading the page
         }
-    }
-
-    // Handle an item in the recyclerView being clicked
-    // Example: https://github.com/ngengesenior/RecyclerViewClickListener/blob/master/app/src/main/java/com/example/ngenge/recyclerviewclicklistener/MainActivity.kt
-    override fun onRepoClicked(dataItem: String) {
-        Toast.makeText(this, dataItem, Toast.LENGTH_SHORT).show()
     }
 }

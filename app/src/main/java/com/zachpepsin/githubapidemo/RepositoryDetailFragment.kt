@@ -6,7 +6,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -27,14 +26,14 @@ import java.io.IOException
  */
 class RepositoryDetailFragment : Fragment() {
 
-    /**
-     * The repository content this fragment is presenting.
-     */
+    // The repository content this fragment is presenting.
     private var item: Repositories.RepositoryItem? = null
+
     private var issuesDataset = Issues()
     private var repoName: String? = null
     private var stateFilter: String = "all"
-    private var isPageLoading = false
+
+    private var isPageLoading = false // If a new page of items is currently being loaded
 
     // Number of items before the bottom we have to reach when scrolling to start loading next page
     private val visibleThreshold = 2
@@ -43,6 +42,7 @@ class RepositoryDetailFragment : Fragment() {
     private val itemsPerPageLoad = 20
 
     private var pagesLoaded = 1 // Count of number of pages already loaded
+    
     private val client = OkHttpClient()
 
     override fun onCreate(savedInstanceState: Bundle?) {
