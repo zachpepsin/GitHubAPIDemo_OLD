@@ -111,9 +111,10 @@ class RepositoryListActivity : AppCompatActivity(), RecyclerAdapter.OnRepoClickL
             SimpleItemRecyclerViewAdapter(this, repositoriesDataset.ITEMS, twoPane)
 
         // Execute HTTP Request to load first batch of repos
-        run("https://api.github.com/users/google/repos?page=1&per_page=25")
+        run("https://api.github.com/users/google/repos?page=$pagesLoaded&per_page=$itemsPerPageLoad")
 
         // TODO add scroll ex; https://medium.com/@programmerasi/how-to-implement-load-more-in-recyclerview-3c6358297f4
+        // Add scroll listener to detect when the end of the list has been reached
         recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
@@ -127,21 +128,16 @@ class RepositoryListActivity : AppCompatActivity(), RecyclerAdapter.OnRepoClickL
                     && totalItemCount <= (lastVisibleItem + visibleThreshold)
                 ) {
                     // Load the next page of repos
-                    loadNextPage()
+                    isPageLoading = true
+                    progress_bar_repositories.visibility = View.VISIBLE
+
+                    // Iterate the pages loaded counter so we load the next page
+                    pagesLoaded++
+
+                    run("https://api.github.com/users/google/repos?page=$pagesLoaded&per_page=$itemsPerPageLoad")
                 }
             }
         })
-    }
-
-    private fun loadNextPage() {
-        isPageLoading = true
-
-        progress_bar.visibility = View.VISIBLE
-
-        // Iterate tje pages loaded variable so we load the next page
-        pagesLoaded++
-
-        run("https://api.github.com/users/google/repos?page=$pagesLoaded&per_page=$itemsPerPageLoad")
     }
 
     class SimpleItemRecyclerViewAdapter(
@@ -159,7 +155,6 @@ class RepositoryListActivity : AppCompatActivity(), RecyclerAdapter.OnRepoClickL
                 if (twoPane) {
                     val fragment = RepositoryDetailFragment().apply {
                         arguments = Bundle().apply {
-                            //putString(RepositoryDetailFragment.ARG_ITEM_ID, item.id)
                             putString(RepositoryDetailFragment.ARG_REPO_NAME, item.content)
                         }
                     }
@@ -169,7 +164,6 @@ class RepositoryListActivity : AppCompatActivity(), RecyclerAdapter.OnRepoClickL
                         .commit()
                 } else {
                     val intent = Intent(v.context, RepositoryDetailActivity::class.java).apply {
-                        //putExtra(RepositoryDetailFragment.ARG_ITEM_ID, item.id)
                         putExtra(RepositoryDetailFragment.ARG_REPO_NAME, item.content)
                     }
                     v.context.startActivity(intent)
@@ -208,17 +202,13 @@ class RepositoryListActivity : AppCompatActivity(), RecyclerAdapter.OnRepoClickL
         override fun doInBackground(vararg params: String): String? {
 
             val response = params[0]
-
             if (response.isEmpty()) {
                 // TODO handle not getting a response
             }
             val rootArray = JSONArray(response)
 
-            //var repoNames:ArrayList<String> = ArrayList()
-
             for (i in 0 until rootArray.length()) {
                 val jsonRepo = rootArray.getJSONObject(i)
-                //repositoriesDataset.add(jsonRepo.getString("name"))
                 repositoriesDataset.addItem(
                     jsonRepo.getString("id"),
                     jsonRepo.getString("name"),
@@ -241,13 +231,13 @@ class RepositoryListActivity : AppCompatActivity(), RecyclerAdapter.OnRepoClickL
             val firstItemAdded = (pagesLoaded - 1) * itemsPerPageLoad
             val lastItemAdded = (pagesLoaded) * itemsPerPageLoad - 1
 
-            repository_list.adapter?.notifyItemRangeInserted(firstItemAdded, lastItemAdded)
+            // Check to make sure we still have this view, since the activity could be destroyed
+            if (repository_list != null) {
+                repository_list.adapter?.notifyItemRangeInserted(firstItemAdded, lastItemAdded)
+                progress_bar_repositories.visibility = View.INVISIBLE
+            }
 
-            // We are done loading the page
-            isPageLoading = false
-
-
-            progress_bar.visibility = View.INVISIBLE
+            isPageLoading = false // We are done loading the page
         }
     }
 

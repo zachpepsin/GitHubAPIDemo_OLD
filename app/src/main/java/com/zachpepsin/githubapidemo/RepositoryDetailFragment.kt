@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.activity_repository_detail.*
 import kotlinx.android.synthetic.main.issues_list_content.view.*
@@ -29,13 +30,18 @@ class RepositoryDetailFragment : Fragment() {
      * The repository content this fragment is presenting.
      */
     private var item: Repositories.RepositoryItem? = null
-
     private var issuesDataset = Issues()
-
     private var repoName: String? = null
-
     private var stateFilter: String = "all"
+    private var isPageLoading = false
 
+    // Number of items before the bottom we have to reach when scrolling to start loading next page
+    private val visibleThreshold = 2
+
+    // Number of repos to load per page (max of 100 per GitHub API)
+    private val itemsPerPageLoad = 20
+
+    private var pagesLoaded = 1 // Count of number of pages already loaded
     private val client = OkHttpClient()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -82,9 +88,6 @@ class RepositoryDetailFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         setupRecyclerView(issues_list)
-
-        // Execute HTTP Request to retrieve issues list
-        run("https://api.github.com/repos/google/$repoName/issues?state=all")
     }
 
     private fun run(url: String) {
@@ -119,11 +122,36 @@ class RepositoryDetailFragment : Fragment() {
     }
 
     private fun setupRecyclerView(recyclerView: RecyclerView) {
-        //recyclerView.adapter = SimpleItemRecyclerViewAdapter(this, DummyContent.ITEMS, twoPane)
+        recyclerView.adapter = SimpleItemRecyclerViewAdapter(issuesDataset.ITEMS)
 
-        //Repositories.ITEMS.clear()
-        recyclerView.adapter =
-            SimpleItemRecyclerViewAdapter(issuesDataset.ITEMS)
+
+        // Execute HTTP Request to retrieve issues list
+        run("https://api.github.com/repos/google/$repoName/issues?page=$pagesLoaded&per_page=$itemsPerPageLoad&state=$stateFilter")
+
+        // Add scroll listener to detect when the end of the list has been reached
+        recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                val layoutManager = recyclerView.layoutManager as LinearLayoutManager
+                val totalItemCount = layoutManager.itemCount
+                val lastVisibleItem = layoutManager.findLastVisibleItemPosition()
+
+                // If we are within the threshold of the bottom of the list, and we are not
+                // already loading a new page of items, then load the next page of items
+                if (!isPageLoading
+                    && totalItemCount <= (lastVisibleItem + visibleThreshold)
+                ) {
+                    // Load the next page of repos
+                    isPageLoading = true
+                    progress_bar_issues.visibility = View.VISIBLE
+
+                    // Iterate the pages loaded counter so we load the next page
+                    pagesLoaded++
+
+                    run("https://api.github.com/repos/google/$repoName/issues?page=$pagesLoaded&per_page=$itemsPerPageLoad&state=$stateFilter")
+                }
+            }
+        })
     }
 
     class SimpleItemRecyclerViewAdapter(
@@ -193,18 +221,18 @@ class RepositoryDetailFragment : Fragment() {
         }
     }
 
-    inner class getData() : AsyncTask<String, Void, String>() {
+    inner class getData : AsyncTask<String, Void, String>() {
 
         override fun doInBackground(vararg params: String): String? {
 
             val response = params[0]
+            if (response.isEmpty()) {
+                // TODO handle not getting a response
+            }
             val rootArray = JSONArray(response)
-
-            //var repoNames:ArrayList<String> = ArrayList()
 
             for (i in 0 until rootArray.length()) {
                 val jsonRepo = rootArray.getJSONObject(i)
-                //issuesDataset.add(jsonRepo.getString("name"))\
                 issuesDataset.addItem(
                     jsonRepo.getString("id"),
                     jsonRepo.getString("number"),
@@ -225,9 +253,17 @@ class RepositoryDetailFragment : Fragment() {
         override fun onPostExecute(result: String?) {
             super.onPostExecute(result)
 
+            // Get the range of items added to notify the dataset how many items were added
+            val firstItemAdded = (pagesLoaded - 1) * itemsPerPageLoad
+            val lastItemAdded = (pagesLoaded) * itemsPerPageLoad - 1
+
             // Check to make sure we still have this view, since the fragment could be destroyed
-            if (issues_list != null)
-                issues_list.adapter?.notifyDataSetChanged()
+            if (issues_list != null) {
+                issues_list.adapter?.notifyItemRangeInserted(firstItemAdded, lastItemAdded)
+                progress_bar_issues.visibility = View.INVISIBLE
+            }
+
+            isPageLoading = false // We are done loading the page
         }
     }
 
@@ -249,8 +285,7 @@ class RepositoryDetailFragment : Fragment() {
         }
 
         // Clear dataset and adapter before repopulating the recycler
-        val numItems = issuesDataset.ITEMS.size
-        issues_list.adapter?.notifyItemRangeRemoved(0, numItems)
+        issues_list.adapter?.notifyItemRangeRemoved(0, issuesDataset.ITEMS.size)
         issuesDataset.ITEMS.clear()
 
         // Re-execute HTTP Request to retrieve issues list with filter
