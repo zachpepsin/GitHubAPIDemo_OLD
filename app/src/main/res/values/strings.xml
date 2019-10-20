@@ -9,4 +9,6 @@
         <item>Open</item>
         <item>Closed</item>
     </string-array>
+
+    <string name="text_issues_recycler_empty">No issues found</string>
 </resources>

@@ -21,7 +21,7 @@
         -->
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/issues_list"
+        android:id="@+id/recycler_issues"
         android:name="com.zachpepsin.githubapidemo.RepositoryDetailFragment"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -36,6 +36,18 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:context=".RepositoryDetailFragment"
         tools:listitem="@layout/issues_list_content" />
+
+    <TextView
+        android:id="@+id/text_issues_recycler_empty"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:text="@string/text_issues_recycler_empty"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:gravity="center"/>
 
     <ProgressBar
         android:id="@+id/progress_bar_issues"

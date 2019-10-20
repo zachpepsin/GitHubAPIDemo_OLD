@@ -87,7 +87,7 @@ class RepositoryDetailFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        setupRecyclerView(issues_list)
+        setupRecyclerView(recycler_issues)
     }
 
     private fun run(url: String) {
@@ -258,9 +258,19 @@ class RepositoryDetailFragment : Fragment() {
             val lastItemAdded = (pagesLoaded) * itemsPerPageLoad - 1
 
             // Check to make sure we still have this view, since the fragment could be destroyed
-            if (issues_list != null) {
-                issues_list.adapter?.notifyItemRangeInserted(firstItemAdded, lastItemAdded)
+            if (recycler_issues != null) {
+                recycler_issues.adapter?.notifyItemRangeInserted(firstItemAdded, lastItemAdded)
                 progress_bar_issues.visibility = View.INVISIBLE
+            }
+
+            if (issuesDataset.ITEMS.size <= 0) {
+                // No issues to display in list, show an empty list message
+                recycler_issues.visibility = View.GONE
+                text_issues_recycler_empty.visibility = View.VISIBLE
+            } else if (recycler_issues.visibility == View.GONE) {
+                // If the recycler is hidden and we have items to display, make it visible
+                recycler_issues.visibility = View.VISIBLE
+                text_issues_recycler_empty.visibility = View.GONE
             }
 
             isPageLoading = false // We are done loading the page
@@ -285,7 +295,7 @@ class RepositoryDetailFragment : Fragment() {
         }
 
         // Clear dataset and adapter before repopulating the recycler
-        issues_list.adapter?.notifyItemRangeRemoved(0, issuesDataset.ITEMS.size)
+        recycler_issues.adapter?.notifyItemRangeRemoved(0, issuesDataset.ITEMS.size)
         issuesDataset.ITEMS.clear()
 
         // Re-execute HTTP Request to retrieve issues list with filter
