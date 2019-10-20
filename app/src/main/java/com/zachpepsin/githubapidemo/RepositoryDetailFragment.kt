@@ -35,7 +35,6 @@ class RepositoryDetailFragment : Fragment() {
     private var repoName: String? = null
     private var stateFilter: String = "all"
     private var isPageLoading = false
-    private lateinit var progressBarIssuesCenter: ProgressBar
 
     // Number of items before the bottom we have to reach when scrolling to start loading next page
     private val visibleThreshold = 2
@@ -89,8 +88,6 @@ class RepositoryDetailFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        progressBarIssuesCenter = view.findViewById(R.id.progress_bar_issue_center)
-
         setupRecyclerView(recycler_issues)
     }
 
@@ -103,8 +100,6 @@ class RepositoryDetailFragment : Fragment() {
         val request = Request.Builder()
             .url(url)
             .build()
-
-        progressBarIssuesCenter.visibility = View.VISIBLE  // Display the main progress bar
 
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
@@ -119,7 +114,7 @@ class RepositoryDetailFragment : Fragment() {
                 // Run view-related code back on the main thread
                 activity?.runOnUiThread {
                     // Hide the main progress bar
-                    progressBarIssuesCenter.visibility = View.GONE
+                    progress_bar_issues_center.visibility = View.GONE
                 }
             }
         })
@@ -128,6 +123,7 @@ class RepositoryDetailFragment : Fragment() {
     private fun setupRecyclerView(recyclerView: RecyclerView) {
         recyclerView.adapter = SimpleItemRecyclerViewAdapter(issuesDataset.ITEMS)
 
+        progress_bar_issues_center.visibility = View.VISIBLE  // Display the main progress bar
 
         // Execute HTTP Request to retrieve issues list
         run("https://api.github.com/repos/google/$repoName/issues?page=$pagesLoaded&per_page=$itemsPerPageLoad&state=$stateFilter")
@@ -300,6 +296,8 @@ class RepositoryDetailFragment : Fragment() {
         // Clear dataset and adapter before repopulating the recycler
         recycler_issues.adapter?.notifyItemRangeRemoved(0, issuesDataset.ITEMS.size)
         issuesDataset.ITEMS.clear()
+
+        progress_bar_issues_center.visibility = View.VISIBLE  // Display the main progress bar
 
         // Re-execute HTTP Request to retrieve issues list with filter
         run("https://api.github.com/repos/google/$repoName/issues?state=$stateFilter")

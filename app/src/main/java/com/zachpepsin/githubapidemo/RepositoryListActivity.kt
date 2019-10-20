@@ -3,6 +3,7 @@ package com.zachpepsin.githubapidemo
 import android.content.Intent
 import android.os.AsyncTask
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -79,27 +80,20 @@ class RepositoryListActivity : AppCompatActivity(), RecyclerAdapter.OnRepoClickL
             .build()
 
         client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {}
-            //override fun onResponse(call: Call, response: Response) = println(response.body()?.string())
-
+            override fun onFailure(call: Call, e: IOException) {
+                e.printStackTrace()
+                Log.e("Request Failed", e.message!!)
+            }
 
             override fun onResponse(call: Call?, response: Response) {
                 val responseData = response.body()?.string()
                 getData().execute(responseData)
-                /*
-                runOnUiThread{
-                    try {
-                        var json = JSONObject(responseData)
-                        println("Request Successful!!")
-                        println(json)
-                        val responseObject = json.getJSONObject("response")
-                        val docs = json.getJSONArray("docs")
-                        this@MainActivity.fetchComplete()
-                    } catch (e: JSONException) {
-                        e.printStackTrace()
-                    }
+
+                // Run view-related code back on the main thread
+                runOnUiThread {
+                    // Hide the main progress bar
+                    progress_bar_repositories_center.visibility = View.GONE
                 }
-                 */
             }
         })
     }
@@ -109,6 +103,8 @@ class RepositoryListActivity : AppCompatActivity(), RecyclerAdapter.OnRepoClickL
 
         recyclerView.adapter =
             SimpleItemRecyclerViewAdapter(this, repositoriesDataset.ITEMS, twoPane)
+
+        progress_bar_repositories_center.visibility = View.VISIBLE  // Display the main progress bar
 
         // Execute HTTP Request to load first batch of repos
         run("https://api.github.com/users/google/repos?page=$pagesLoaded&per_page=$itemsPerPageLoad")
@@ -129,7 +125,7 @@ class RepositoryListActivity : AppCompatActivity(), RecyclerAdapter.OnRepoClickL
                 ) {
                     // Load the next page of repos
                     isPageLoading = true
-                    progress_bar_repositories.visibility = View.VISIBLE
+                    progress_bar_repositories_page.visibility = View.VISIBLE
 
                     // Iterate the pages loaded counter so we load the next page
                     pagesLoaded++
@@ -234,7 +230,7 @@ class RepositoryListActivity : AppCompatActivity(), RecyclerAdapter.OnRepoClickL
             // Check to make sure we still have this view, since the activity could be destroyed
             if (repository_list != null) {
                 repository_list.adapter?.notifyItemRangeInserted(firstItemAdded, lastItemAdded)
-                progress_bar_repositories.visibility = View.INVISIBLE
+                progress_bar_repositories_page.visibility = View.INVISIBLE
             }
 
             isPageLoading = false // We are done loading the page
