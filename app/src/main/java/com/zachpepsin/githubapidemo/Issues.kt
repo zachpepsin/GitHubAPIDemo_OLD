@@ -13,8 +13,8 @@ class Issues {
      */
     private val itemMap: MutableMap<String, IssueItem> = HashMap()
 
-    fun addItem(id: String, number: String, content: String, details: String, state: String) {
-        val item = IssueItem(id, number, content, details, state)
+    fun addItem(id: String, number: String, title: String, body: String, state: String) {
+        val item = IssueItem(id, number, title, body, state)
         items.add(item)
         itemMap[item.id] = item
     }

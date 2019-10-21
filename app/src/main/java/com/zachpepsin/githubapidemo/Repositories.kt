@@ -13,8 +13,8 @@ class Repositories {
      */
     private val itemMap: MutableMap<String, RepositoryItem> = HashMap()
 
-    fun addItem(id: String, content: String, details: String) {
-        val item = RepositoryItem(id, content, details)
+    fun addItem(id: String, name: String, description: String) {
+        val item = RepositoryItem(id, name, description)
         items.add(item)
         itemMap[item.id] = item
     }
@@ -24,9 +24,9 @@ class Repositories {
      */
     data class RepositoryItem(
         val id: String,
-        val content: String,
-        val details: String
+        val name: String,
+        val description: String
     ) {
-        override fun toString(): String = content
+        override fun toString(): String = name
     }
 }
