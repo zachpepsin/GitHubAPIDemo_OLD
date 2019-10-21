@@ -2,6 +2,7 @@ package com.zachpepsin.githubapidemo
 
 import android.content.Context
 import android.content.Intent
+import android.content.res.Resources
 import android.net.*
 import android.net.NetworkCapabilities.TRANSPORT_CELLULAR
 import android.net.NetworkCapabilities.TRANSPORT_WIFI
@@ -14,6 +15,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
@@ -269,6 +271,9 @@ class RepositoryListActivity : AppCompatActivity() {
 
             if (item.description != "null")
                 holder.textDescription.text = item.description
+            else {
+                holder.textDescription.text = parentActivity.getString(R.string.no_description)
+            }
 
             with(holder.itemView) {
                 tag = item
