@@ -181,7 +181,7 @@ class RepositoryListActivity : AppCompatActivity() {
 
             override fun onResponse(call: Call?, response: Response) {
                 val responseData = response.body()?.string()
-                getData().execute(responseData)
+                GetData().execute(responseData)
 
                 // Run view-related code back on the main thread
                 runOnUiThread {
@@ -303,7 +303,7 @@ class RepositoryListActivity : AppCompatActivity() {
     }
 
 
-    inner class getData : AsyncTask<String, Void, String>() {
+    inner class GetData : AsyncTask<String, Void, String>() {
 
         override fun doInBackground(vararg params: String): String? {
 

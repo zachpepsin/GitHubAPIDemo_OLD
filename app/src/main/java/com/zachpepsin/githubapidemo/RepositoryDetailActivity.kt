@@ -15,7 +15,7 @@ import kotlinx.android.synthetic.main.activity_repository_detail.*
  */
 class RepositoryDetailActivity : AppCompatActivity() {
 
-    var selectedFilter = 0
+    private var selectedFilter = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
