@@ -53,6 +53,10 @@ class RepositoryDetailFragment : Fragment() {
                 // Load the repository title specified by the fragment arguments
                 repoName = it.getString(ARG_REPO_NAME)
                 activity?.toolbar_layout?.title = repoName
+
+                val repoDescription = it.getString(ARG_REPO_DESCRIPTION)
+                if (repoDescription != "null")
+                    activity?.text_toolbar_header?.text = repoDescription
             } else {
                 // A repo name was not passed into the fragment
                 Log.w(RepositoryDetailActivity::class.java.simpleName, "Repo name not supplied")
@@ -298,5 +302,6 @@ class RepositoryDetailFragment : Fragment() {
          */
         const val ARG_ITEM_ID = "item_id"
         const val ARG_REPO_NAME = "repo_name"
+        const val ARG_REPO_DESCRIPTION = "repo_description"
     }
 }

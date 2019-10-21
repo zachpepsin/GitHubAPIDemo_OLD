@@ -68,6 +68,10 @@ class RepositoryDetailActivity : AppCompatActivity() {
                         RepositoryDetailFragment.ARG_REPO_NAME,
                         intent.getStringExtra(RepositoryDetailFragment.ARG_REPO_NAME)
                     )
+                    putString(
+                        RepositoryDetailFragment.ARG_REPO_DESCRIPTION,
+                        intent.getStringExtra(RepositoryDetailFragment.ARG_REPO_DESCRIPTION)
+                    )
                 }
             }
 

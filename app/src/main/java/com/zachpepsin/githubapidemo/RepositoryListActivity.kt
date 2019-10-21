@@ -2,7 +2,6 @@ package com.zachpepsin.githubapidemo
 
 import android.content.Context
 import android.content.Intent
-import android.content.res.Resources
 import android.net.*
 import android.net.NetworkCapabilities.TRANSPORT_CELLULAR
 import android.net.NetworkCapabilities.TRANSPORT_WIFI
@@ -15,7 +14,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
@@ -25,12 +24,6 @@ import kotlinx.android.synthetic.main.repository_list_content.view.*
 import okhttp3.*
 import org.json.JSONArray
 import java.io.IOException
-import androidx.recyclerview.widget.DividerItemDecoration
-import androidx.core.app.ComponentActivity.ExtraData
-import androidx.core.content.ContextCompat.getSystemService
-import android.icu.lang.UCharacter.GraphemeClusterBreak.T
-
-
 
 
 /**
@@ -256,7 +249,12 @@ class RepositoryListActivity : AppCompatActivity() {
                 if (twoPane) {
                     val fragment = RepositoryDetailFragment().apply {
                         arguments = Bundle().apply {
+                            putString(RepositoryDetailFragment.ARG_ITEM_ID, item.id)
                             putString(RepositoryDetailFragment.ARG_REPO_NAME, item.name)
+                            putString(
+                                RepositoryDetailFragment.ARG_REPO_DESCRIPTION,
+                                item.description
+                            )
                         }
                     }
                     parentActivity.supportFragmentManager
@@ -265,7 +263,9 @@ class RepositoryListActivity : AppCompatActivity() {
                         .commit()
                 } else {
                     val intent = Intent(v.context, RepositoryDetailActivity::class.java).apply {
+                        putExtra(RepositoryDetailFragment.ARG_ITEM_ID, item.id)
                         putExtra(RepositoryDetailFragment.ARG_REPO_NAME, item.name)
+                        putExtra(RepositoryDetailFragment.ARG_REPO_DESCRIPTION, item.description)
                     }
                     v.context.startActivity(intent)
                 }
