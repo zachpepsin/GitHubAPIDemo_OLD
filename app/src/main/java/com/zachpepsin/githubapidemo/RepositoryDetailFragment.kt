@@ -218,8 +218,8 @@ class RepositoryDetailFragment : Fragment() {
             val response = params[0]
             if (response.isEmpty()) {
                 // We did not get a response
-                Log.d(RepositoryDetailFragment::class.java.simpleName, "No response")
-                // TODO handle not getting a response
+                Log.w(RepositoryDetailFragment::class.java.simpleName, "No response")
+                onDestroy()
             }
             val rootArray = JSONArray(response)
 
