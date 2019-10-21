@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">GitHubAPIDemo</string>
+    <string name="app_name">GitHub API Demo</string>
     <string name="title_repository_list">Repositories</string>
     <string name="title_repository_detail">Repository Detail</string>
 
@@ -11,4 +11,6 @@
     </string-array>
 
     <string name="text_issues_recycler_empty">No issues found</string>
+    <string name="text_repositories_recycler_empty">No repositories found</string>
+    <string name="text_no_network_connection">Unable to establish a network connection.\nConnect to the internet to proceed.</string>
 </resources>

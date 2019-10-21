@@ -78,6 +78,9 @@ class RepositoryListActivity : AppCompatActivity() {
         val connectivityManager =
             this.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
 
+
+        // This callback will be used if we don't have an initial connection and need to detect
+        // when a network connection is established
         val networkCallback = object : ConnectivityManager.NetworkCallback() {
             override fun onAvailable(network: Network) {
                 super.onAvailable(network)
@@ -94,7 +97,14 @@ class RepositoryListActivity : AppCompatActivity() {
                 // We now have a network connection and can load the data
                 // This has to be run on the UI thread because the callback is on a different thread
                 runOnUiThread {
-                    setupRecyclerView(repository_list)
+                    // Hide the 'no connection' message and re-display the recycler
+                    // Reset the text of it back to the 'no items found' message in case the view is
+                    // used again in the case that no repos are returned for the user
+                    text_repositories_recycler_empty.visibility = View.GONE
+                    text_repositories_recycler_empty.text =
+                        getString(R.string.text_repositories_recycler_empty)
+
+                    setupRecyclerView(recycler_repositories)
                 }
             }
         }
@@ -138,13 +148,19 @@ class RepositoryListActivity : AppCompatActivity() {
                 "Network connection available"
             )
             // Proceed to set up recycler and load data
-            setupRecyclerView(repository_list)
+            setupRecyclerView(recycler_repositories)
         } else {
             // We do not have a network connection
             Log.d(
                 RepositoryDetailActivity::class.java.simpleName,
                 "Network connection not available"
             )
+
+            // Display a 'no connection' message
+            recycler_repositories.visibility = View.GONE
+            text_repositories_recycler_empty.text = getString(R.string.text_no_network_connection)
+            text_repositories_recycler_empty.visibility = View.VISIBLE
+
             // Register a network callback so if we do get a network connection, we can proceed
             val builder: NetworkRequest.Builder = NetworkRequest.Builder()
             connectivityManager.registerNetworkCallback(builder.build(), networkCallback)
@@ -274,7 +290,7 @@ class RepositoryListActivity : AppCompatActivity() {
             val response = params[0]
             if (response.isEmpty()) {
                 // We did not get a response
-                Log.d( RepositoryDetailActivity::class.java.simpleName, "No response")
+                Log.d(RepositoryDetailActivity::class.java.simpleName, "No response")
                 // TODO handle not getting a response
             }
             val rootArray = JSONArray(response)
@@ -298,9 +314,22 @@ class RepositoryListActivity : AppCompatActivity() {
             val lastItemAdded = (pagesLoaded) * itemsPerPageLoad - 1
 
             // Check to make sure we still have this view, since the activity could be destroyed
-            if (repository_list != null) {
-                repository_list.adapter?.notifyItemRangeInserted(firstItemAdded, lastItemAdded)
+            if (recycler_repositories != null) {
+                recycler_repositories.adapter?.notifyItemRangeInserted(
+                    firstItemAdded,
+                    lastItemAdded
+                )
                 progress_bar_repositories_page.visibility = View.INVISIBLE
+            }
+
+            if (repositoriesDataset.ITEMS.size <= 0) {
+                // No repositories to display in list, show an empty list message
+                recycler_repositories.visibility = View.GONE
+                text_repositories_recycler_empty.visibility = View.VISIBLE
+            } else if (recycler_repositories.visibility == View.GONE) {
+                // If the recycler is hidden and we have items to display, make it visible
+                recycler_repositories.visibility = View.VISIBLE
+                text_repositories_recycler_empty.visibility = View.GONE
             }
 
             isPageLoading = false // We are done loading the page
