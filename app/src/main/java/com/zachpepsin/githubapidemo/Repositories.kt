@@ -3,59 +3,30 @@ package com.zachpepsin.githubapidemo
 import java.util.*
 
 class Repositories {
+    /**
+     * An array of items
+     */
+    val items: MutableList<RepositoryItem> = ArrayList()
 
     /**
-     * An array of sample (dummy) items.
+     * A map of items, by ID
      */
-    val ITEMS: MutableList<RepositoryItem> = ArrayList()
-
-
-    /**
-     * A map of sample (dummy) items, by ID.
-     */
-    val ITEM_MAP: MutableMap<String, RepositoryItem> = HashMap()
-
-
-    private val COUNT = 25
-
-    /*
-    init {
-        // Add some sample items.
-        for (i in 1..COUNT) {
-            addItem(createDummyItem(i))
-        }
-    }
-     */
-
-    private fun addItem(item: RepositoryItem) {
-        ITEMS.add(item)
-        ITEM_MAP.put(item.id, item)
-    }
+    private val itemMap: MutableMap<String, RepositoryItem> = HashMap()
 
     fun addItem(id: String, content: String, details: String) {
         val item = RepositoryItem(id, content, details)
-        ITEMS.add(item)
-        ITEM_MAP.put(item.id, item)
-    }
-
-    private fun createDummyItem(position: Int): RepositoryItem {
-        return RepositoryItem(position.toString(), "Item " + position, makeDetails(position))
-    }
-
-    private fun makeDetails(position: Int): String {
-        val builder = StringBuilder()
-        builder.append("Details about Item: ").append(position)
-        for (i in 0..position - 1) {
-            builder.append("\nMore details information here.")
-        }
-        return builder.toString()
+        items.add(item)
+        itemMap[item.id] = item
     }
 
     /**
-     * A dummy item representing a piece of content.
+     * Data class
      */
-    data class RepositoryItem(val id: String, val content: String, val details: String) {
+    data class RepositoryItem(
+        val id: String,
+        val content: String,
+        val details: String
+    ) {
         override fun toString(): String = content
     }
-
 }
