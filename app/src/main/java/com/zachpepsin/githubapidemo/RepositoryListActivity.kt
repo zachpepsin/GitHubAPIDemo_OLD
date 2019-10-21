@@ -30,8 +30,8 @@ import java.io.IOException
  * has different presentations for handset and tablet-size devices. On
  * handsets, the activity presents a list of items, which when touched,
  * lead to a [RepositoryDetailActivity] representing
- * item details. On tablets, the activity presents the list of items and
- * item details side-by-side using two vertical panes.
+ * item body. On tablets, the activity presents the list of items and
+ * item body side-by-side using two vertical panes.
  */
 class RepositoryListActivity : AppCompatActivity() {
 
@@ -193,7 +193,7 @@ class RepositoryListActivity : AppCompatActivity() {
 
     private fun setupRecyclerView(recyclerView: RecyclerView) {
         recyclerView.adapter =
-            SimpleItemRecyclerViewAdapter(this, repositoriesDataset.ITEMS, twoPane)
+            SimpleItemRecyclerViewAdapter(this, repositoriesDataset.items, twoPane)
 
         progress_bar_repositories_center.visibility = View.VISIBLE  // Display the main progress bar
 
@@ -241,7 +241,7 @@ class RepositoryListActivity : AppCompatActivity() {
                 if (twoPane) {
                     val fragment = RepositoryDetailFragment().apply {
                         arguments = Bundle().apply {
-                            putString(RepositoryDetailFragment.ARG_REPO_NAME, item.content)
+                            putString(RepositoryDetailFragment.ARG_REPO_NAME, item.name)
                         }
                     }
                     parentActivity.supportFragmentManager
@@ -250,7 +250,7 @@ class RepositoryListActivity : AppCompatActivity() {
                         .commit()
                 } else {
                     val intent = Intent(v.context, RepositoryDetailActivity::class.java).apply {
-                        putExtra(RepositoryDetailFragment.ARG_REPO_NAME, item.content)
+                        putExtra(RepositoryDetailFragment.ARG_REPO_NAME, item.name)
                     }
                     v.context.startActivity(intent)
                 }
@@ -265,8 +265,10 @@ class RepositoryListActivity : AppCompatActivity() {
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
             val item = values[position]
-            holder.idView.text = item.id
-            holder.contentView.text = item.content
+            holder.textName.text = item.name
+
+            if (item.description != "null")
+                holder.textDescription.text = item.description
 
             with(holder.itemView) {
                 tag = item
@@ -277,8 +279,8 @@ class RepositoryListActivity : AppCompatActivity() {
         override fun getItemCount() = values.size
 
         inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-            val idView: TextView = view.id_text
-            val contentView: TextView = view.content
+            val textName: TextView = view.text_name
+            val textDescription: TextView = view.text_description
         }
     }
 
@@ -321,7 +323,7 @@ class RepositoryListActivity : AppCompatActivity() {
                 progress_bar_repositories_page.visibility = View.INVISIBLE
             }
 
-            if (repositoriesDataset.ITEMS.size <= 0) {
+            if (repositoriesDataset.items.size <= 0) {
                 // No repositories to display in list, show an empty list message
                 recycler_repositories.visibility = View.GONE
                 text_repositories_recycler_empty.visibility = View.VISIBLE

@@ -10,7 +10,7 @@ import kotlinx.android.synthetic.main.activity_repository_detail.*
 /**
  * An activity representing a single Repositories detail screen. This
  * activity is only used on narrow width devices. On tablet-size devices,
- * item details are presented side-by-side with a list of items
+ * item body are presented side-by-side with a list of items
  * in a [RepositoryListActivity].
  */
 class RepositoryDetailActivity : AppCompatActivity() {
@@ -86,7 +86,7 @@ class RepositoryDetailActivity : AppCompatActivity() {
             android.R.id.home -> {
                 // This ID represents the Home or Up button. In the case of this
                 // activity, the Up button is shown. For
-                // more details, see the Navigation pattern on Android Design:
+                // more body, see the Navigation pattern on Android Design:
                 //
                 // http://developer.android.com/design/patterns/navigation.html#up-vs-back
 

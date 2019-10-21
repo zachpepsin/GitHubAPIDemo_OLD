@@ -26,7 +26,7 @@ import java.io.IOException
  */
 class RepositoryDetailFragment : Fragment() {
 
-    // The repository content this fragment is presenting.
+    // The repository title this fragment is presenting.
     private var item: Repositories.RepositoryItem? = null
 
     private var issuesDataset = Issues()
@@ -50,7 +50,7 @@ class RepositoryDetailFragment : Fragment() {
 
         arguments?.let {
             if (it.containsKey(ARG_REPO_NAME) && !it.getString(ARG_REPO_NAME).isNullOrEmpty()) {
-                // Load the repository content specified by the fragment arguments
+                // Load the repository title specified by the fragment arguments
                 repoName = it.getString(ARG_REPO_NAME)
                 activity?.toolbar_layout?.title = repoName
             } else {
@@ -68,9 +68,9 @@ class RepositoryDetailFragment : Fragment() {
     ): View? {
         val rootView = inflater.inflate(R.layout.repository_detail, container, false)
 
-        // Show the repository content as text in a TextView.
+        // Show the repository title as text in a TextView.
         item?.let {
-            //rootView.repository_detail.text = it.details
+            //rootView.repository_detail.text = it.body
         }
 
         return rootView
@@ -112,7 +112,7 @@ class RepositoryDetailFragment : Fragment() {
     }
 
     private fun setupRecyclerView(recyclerView: RecyclerView) {
-        recyclerView.adapter = SimpleItemRecyclerViewAdapter(issuesDataset.ITEMS)
+        recyclerView.adapter = SimpleItemRecyclerViewAdapter(issuesDataset.items)
 
         progress_bar_issues_center.visibility = View.VISIBLE  // Display the main progress bar
 
@@ -173,20 +173,20 @@ class RepositoryDetailFragment : Fragment() {
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
             val item = values[position]
-            holder.idView.text = item.number
-            holder.contentView.text = item.content
+            holder.textNumber.text = item.number
+            holder.textTitle.text = item.title
 
             // Set the number text to green/red depending on if the issue state is open/closed
             when (item.state) {
-                "open" -> holder.idView.setTextColor(
+                "open" -> holder.textNumber.setTextColor(
                     ContextCompat.getColor(
-                        holder.idView.context,
+                        holder.textNumber.context,
                         R.color.stateOpen
                     )
                 )
-                "closed" -> holder.idView.setTextColor(
+                "closed" -> holder.textNumber.setTextColor(
                     ContextCompat.getColor(
-                        holder.idView.context,
+                        holder.textNumber.context,
                         R.color.stateClosed
                     )
                 )
@@ -206,8 +206,8 @@ class RepositoryDetailFragment : Fragment() {
         override fun getItemCount() = values.size
 
         inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-            val idView: TextView = view.id_text
-            val contentView: TextView = view.content
+            val textNumber: TextView = view.text_number
+            val textTitle: TextView = view.text_title
         }
     }
 
@@ -250,7 +250,7 @@ class RepositoryDetailFragment : Fragment() {
                 progress_bar_issues_page.visibility = View.INVISIBLE
             }
 
-            if (issuesDataset.ITEMS.size <= 0) {
+            if (issuesDataset.items.size <= 0) {
                 // No issues to display in list, show an empty list message
                 recycler_issues.visibility = View.GONE
                 text_issues_recycler_empty.visibility = View.VISIBLE
@@ -282,8 +282,8 @@ class RepositoryDetailFragment : Fragment() {
         }
 
         // Clear dataset and adapter before repopulating the recycler
-        recycler_issues.adapter?.notifyItemRangeRemoved(0, issuesDataset.ITEMS.size)
-        issuesDataset.ITEMS.clear()
+        recycler_issues.adapter?.notifyItemRangeRemoved(0, issuesDataset.items.size)
+        issuesDataset.items.clear()
 
         progress_bar_issues_center.visibility = View.VISIBLE  // Display the main progress bar
 
