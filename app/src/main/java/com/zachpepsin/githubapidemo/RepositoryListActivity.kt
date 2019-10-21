@@ -25,6 +25,12 @@ import kotlinx.android.synthetic.main.repository_list_content.view.*
 import okhttp3.*
 import org.json.JSONArray
 import java.io.IOException
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.core.app.ComponentActivity.ExtraData
+import androidx.core.content.ContextCompat.getSystemService
+import android.icu.lang.UCharacter.GraphemeClusterBreak.T
+
+
 
 
 /**
@@ -198,6 +204,13 @@ class RepositoryListActivity : AppCompatActivity() {
             SimpleItemRecyclerViewAdapter(this, repositoriesDataset.items, twoPane)
 
         progress_bar_repositories_center.visibility = View.VISIBLE  // Display the main progress bar
+
+        // Add divider for recycler
+        val dividerItemDecoration = DividerItemDecoration(
+            recyclerView.context,
+            (recyclerView.layoutManager as LinearLayoutManager).orientation
+        )
+        recyclerView.addItemDecoration(dividerItemDecoration)
 
         // Execute HTTP Request to load first batch of repos
         run("https://api.github.com/users/google/repos?page=$pagesLoaded&per_page=$itemsPerPageLoad")
