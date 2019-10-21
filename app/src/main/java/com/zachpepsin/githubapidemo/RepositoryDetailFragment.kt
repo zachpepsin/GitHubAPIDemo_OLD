@@ -1,5 +1,7 @@
 package com.zachpepsin.githubapidemo
 
+import android.content.Intent
+import android.net.Uri
 import android.os.AsyncTask
 import android.os.Bundle
 import android.util.Log
@@ -7,6 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -52,6 +55,7 @@ class RepositoryDetailFragment : Fragment() {
             if (it.containsKey(ARG_REPO_NAME) && !it.getString(ARG_REPO_NAME).isNullOrEmpty()) {
                 // Load the repository title specified by the fragment arguments
                 repoName = it.getString(ARG_REPO_NAME)
+                repositoryName = it.getString(ARG_REPO_NAME)
                 activity?.toolbar_layout?.title = repoName
 
                 val repoDescription = it.getString(ARG_REPO_DESCRIPTION)
@@ -159,13 +163,12 @@ class RepositoryDetailFragment : Fragment() {
             onClickListener = View.OnClickListener { v ->
 
                 // Handle clicking on an issue
-                /*
-                val item = v.tag as Repositories.RepositoryItem
-                val intent = Intent(v.context, RepositoryDetailActivity::class.java).apply {
-                    putExtra(ARG_ITEM_ID, item.id)
-                }
-                v.context.startActivity(intent)
-                */
+                // Go to the URL for the issue
+                val item = v.tag as Issues.IssueItem
+                val url = "https://github.com/google/$repositoryName/issues/${item.number}"
+                val i = Intent(Intent.ACTION_VIEW)
+                i.data = Uri.parse(url)
+                v.context.startActivity(i)
             }
         }
 
@@ -303,5 +306,6 @@ class RepositoryDetailFragment : Fragment() {
         const val ARG_ITEM_ID = "item_id"
         const val ARG_REPO_NAME = "repo_name"
         const val ARG_REPO_DESCRIPTION = "repo_description"
+        var repositoryName:String? = null
     }
 }
