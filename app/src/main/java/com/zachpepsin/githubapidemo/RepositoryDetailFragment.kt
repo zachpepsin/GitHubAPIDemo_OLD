@@ -42,30 +42,21 @@ class RepositoryDetailFragment : Fragment() {
     private val itemsPerPageLoad = 20
 
     private var pagesLoaded = 1 // Count of number of pages already loaded
-    
+
     private val client = OkHttpClient()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         arguments?.let {
-            /*
-            if (it.containsKey(ARG_ITEM_ID)) {
-                // Load the repository content specified by the fragment
-                // arguments. In a real-world scenario, use a Loader
-                // to load content from a content provider.
-                item = issuesDataset.ITEM_MAP[it.getString(ARG_ITEM_ID)]
-                activity?.toolbar_layout?.title = item?.content
-            }
-             */
             if (it.containsKey(ARG_REPO_NAME) && !it.getString(ARG_REPO_NAME).isNullOrEmpty()) {
-                // Load the repository content specified by the fragment
-                // arguments. In a real-world scenario, use a Loader
-                // to load content from a content provider.
+                // Load the repository content specified by the fragment arguments
                 repoName = it.getString(ARG_REPO_NAME)
                 activity?.toolbar_layout?.title = repoName
             } else {
-                // TODO A repo name was not passed into the fragment
+                // A repo name was not passed into the fragment
+                Log.w(RepositoryDetailActivity::class.java.simpleName, "Repo name not supplied")
+                onDestroy()
             }
         }
 
@@ -226,6 +217,8 @@ class RepositoryDetailFragment : Fragment() {
 
             val response = params[0]
             if (response.isEmpty()) {
+                // We did not get a response
+                Log.d(RepositoryDetailFragment::class.java.simpleName, "No response")
                 // TODO handle not getting a response
             }
             val rootArray = JSONArray(response)
@@ -241,12 +234,7 @@ class RepositoryDetailFragment : Fragment() {
                 )
             }
 
-            //issuesDataset[0] = rootArray.get(0).toString()
             return "temp"
-        }
-
-        override fun onPreExecute() {
-            super.onPreExecute()
         }
 
         override fun onPostExecute(result: String?) {

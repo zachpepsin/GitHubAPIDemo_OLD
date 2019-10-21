@@ -1,7 +1,12 @@
 package com.zachpepsin.githubapidemo
 
+import android.content.Context
 import android.content.Intent
+import android.net.*
+import android.net.NetworkCapabilities.TRANSPORT_CELLULAR
+import android.net.NetworkCapabilities.TRANSPORT_WIFI
 import android.os.AsyncTask
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -67,7 +72,83 @@ class RepositoryListActivity : AppCompatActivity() {
             twoPane = true
         }
 
-        setupRecyclerView(repository_list)
+
+        // Use ConnectivityManager to check if we are connected to the
+        // internet, and if so, what type of connection is in place
+        val connectivityManager =
+            this.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+
+        val networkCallback = object : ConnectivityManager.NetworkCallback() {
+            override fun onAvailable(network: Network) {
+                super.onAvailable(network)
+                Log.d(
+                    RepositoryDetailActivity::class.java.simpleName,
+                    "Network connection now available"
+                )
+
+                // We are now connected and don't need this callback anymore
+                // Note: If we were to check for disconnects and re-connects after initial
+                // connection, we would keep this registered and use onLost
+                connectivityManager.unregisterNetworkCallback(this)
+
+                // We now have a network connection and can load the data
+                // This has to be run on the UI thread because the callback is on a different thread
+                runOnUiThread {
+                    setupRecyclerView(repository_list)
+                }
+            }
+        }
+
+        /**
+         * For SDK 22+, we can use the new getNetworkCapabilities method from the ConnectionManager
+         * For SDK <22, we have to use the deprecated activeNetworkInfo method, because its
+         * replacement is only available on SDK22+
+         */
+        var networkAvailable = false
+        @Suppress("DEPRECATION")
+        if (Build.VERSION.SDK_INT > 22) {
+            // For devices with API >= 23
+            val networkCapabilities =
+                connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
+            // NET_CAPABILITY_VALIDATED - Indicates that connectivity on this network was successfully validated.
+            // NET_CAPABILITY_INTERNET - Indicates that this network should be able to reach the internet.
+            if (networkCapabilities != null && networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+                && networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
+            ) {
+
+                if (networkCapabilities.hasTransport(TRANSPORT_WIFI)) {
+                    networkAvailable = true
+                } else if (networkCapabilities.hasTransport(TRANSPORT_CELLULAR)) {
+                    networkAvailable = true
+                }
+            }
+        } else {
+            // For devices with API < 23
+            val activeNetwork: NetworkInfo? = connectivityManager.activeNetworkInfo
+            val isConnected: Boolean = activeNetwork?.isConnected == true
+            if (isConnected) {
+                networkAvailable = true
+            }
+        }
+
+        if (networkAvailable) {
+            // We have a network connection
+            Log.d(
+                RepositoryDetailActivity::class.java.simpleName,
+                "Network connection available"
+            )
+            // Proceed to set up recycler and load data
+            setupRecyclerView(repository_list)
+        } else {
+            // We do not have a network connection
+            Log.d(
+                RepositoryDetailActivity::class.java.simpleName,
+                "Network connection not available"
+            )
+            // Register a network callback so if we do get a network connection, we can proceed
+            val builder: NetworkRequest.Builder = NetworkRequest.Builder()
+            connectivityManager.registerNetworkCallback(builder.build(), networkCallback)
+        }
     }
 
     private fun run(url: String) {
@@ -192,6 +273,8 @@ class RepositoryListActivity : AppCompatActivity() {
 
             val response = params[0]
             if (response.isEmpty()) {
+                // We did not get a response
+                Log.d( RepositoryDetailActivity::class.java.simpleName, "No response")
                 // TODO handle not getting a response
             }
             val rootArray = JSONArray(response)
@@ -205,10 +288,6 @@ class RepositoryListActivity : AppCompatActivity() {
                 )
             }
             return "temp"
-        }
-
-        override fun onPreExecute() {
-            super.onPreExecute()
         }
 
         override fun onPostExecute(result: String?) {
