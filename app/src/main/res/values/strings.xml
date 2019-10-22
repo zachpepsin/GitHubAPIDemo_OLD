@@ -3,13 +3,16 @@
     <string name="title_repository_list">Repositories</string>
     <string name="title_repository_detail">Repository Detail</string>
 
-    <string name="filter_issues">Filter issues</string>
+    <string name="dialog_header_repository_search">Search for a repository</string>
+    <string name="reset">Reset</string>
+    <string name="dialog_header_state_filter">Filter issues</string>
     <string-array name="state_filter_options">
         <item>All</item>
         <item>Open</item>
         <item>Closed</item>
     </string-array>
 
+    <string name="hint_repository_search">Repository name</string>
     <string name="no_description">No description</string>
     <string name="text_issues_recycler_empty">No issues found</string>
     <string name="text_repositories_recycler_empty">No repositories found</string>

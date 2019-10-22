@@ -23,8 +23,9 @@ class RepositoryDetailActivity : AppCompatActivity() {
         setSupportActionBar(detail_toolbar)
 
         fab.setOnClickListener {
+            // Show a radio button dialog to select a state filter
             val builder = AlertDialog.Builder(this)
-                .setTitle(getString(R.string.filter_issues))
+                .setTitle(getString(R.string.dialog_header_state_filter))
                 .setSingleChoiceItems(
                     resources.getStringArray(R.array.state_filter_options),
                     selectedFilter

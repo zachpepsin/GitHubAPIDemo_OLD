@@ -12,18 +12,21 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.activity_repository_list.*
 import kotlinx.android.synthetic.main.repository_list.*
 import kotlinx.android.synthetic.main.repository_list_content.view.*
 import okhttp3.*
 import org.json.JSONArray
+import org.json.JSONObject
 import java.io.IOException
+import java.net.URLEncoder
 
 
 /**
@@ -40,6 +43,8 @@ class RepositoryListActivity : AppCompatActivity() {
     private var twoPane: Boolean = false
 
     private var isPageLoading = false // If a new page of items is currently being loaded
+    private var isSearchPerformed = false
+    private var encodedSearchText: String = ""
 
     // Number of items before the bottom we have to reach when scrolling to start loading next page
     private val visibleThreshold = 2
@@ -60,9 +65,54 @@ class RepositoryListActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
         toolbar.title = title
 
-        fab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show()
+        fab.setOnClickListener {
+            // Show dialog to enter search keywords
+            val builder = AlertDialog.Builder(this)
+                .setTitle(getString(R.string.dialog_header_repository_search))
+
+            val dialogView = layoutInflater.inflate(R.layout.dialog_repository_search, null)
+
+            val categoryEditText = dialogView.findViewById(R.id.categoryEditText) as EditText
+
+            builder.setView(dialogView)
+                // Set up the search button
+                .setPositiveButton(android.R.string.ok) { dialog, _ ->
+                    encodedSearchText = URLEncoder.encode(categoryEditText.text.toString(), "UTF-8")
+
+                    if (encodedSearchText.isEmpty()) {
+                        // Don't do anything if no text was submitted
+                        dialog.dismiss()
+                    }
+
+                    isSearchPerformed = true
+                    pagesLoaded = 1 // New search, so reset number of pages loaded
+
+                    // Clear the recycler and prepare for a new list to populate it
+                    val itemCount = repositoriesDataset.items.size
+                    repositoriesDataset.items.clear()
+                    recycler_repositories.adapter?.notifyItemRangeRemoved(0, itemCount)
+                    text_repositories_recycler_empty.visibility = View.GONE
+
+                    run(
+                        "https://api.github.com/search/repositories?q=$encodedSearchText+user:google&page=$pagesLoaded&per_page=$itemsPerPageLoad"
+                    )
+                }
+                .setNegativeButton(android.R.string.cancel) { dialog, _ ->
+                    // Cancel button
+                    dialog.cancel()
+                }
+
+                .setNeutralButton(getString(R.string.reset)) { _, _ ->
+                    // Reset button.  Perform non-search query
+                    isSearchPerformed = false
+                    setupRecyclerView(recycler_repositories)
+                }
+
+            // Create the alert dialog using builder
+            val dialog: AlertDialog = builder.create()
+
+            // Display the alert dialog
+            dialog.show()
         }
 
         if (repository_detail_container != null) {
@@ -168,6 +218,7 @@ class RepositoryListActivity : AppCompatActivity() {
         }
     }
 
+    // Runs an API request.  Leave searchString null if not performing a search
     private fun run(url: String) {
         val request = Request.Builder()
             .url(url)
@@ -181,7 +232,13 @@ class RepositoryListActivity : AppCompatActivity() {
 
             override fun onResponse(call: Call?, response: Response) {
                 val responseData = response.body()?.string()
-                GetData().execute(responseData)
+                if (!isSearchPerformed) {
+                    // We are not performing a search, just loading a page of repos
+                    LoadRepositories().execute(responseData)
+                } else {
+                    // We did perform a search
+                    LoadRepositoriesSearch().execute(responseData)
+                }
 
                 // Run view-related code back on the main thread
                 runOnUiThread {
@@ -197,6 +254,9 @@ class RepositoryListActivity : AppCompatActivity() {
             SimpleItemRecyclerViewAdapter(this, repositoriesDataset.items, twoPane)
 
         progress_bar_repositories_center.visibility = View.VISIBLE  // Display the main progress bar
+
+        pagesLoaded = 1
+        repositoriesDataset.items.clear()
 
         // Add divider for recycler
         val dividerItemDecoration = DividerItemDecoration(
@@ -228,7 +288,13 @@ class RepositoryListActivity : AppCompatActivity() {
                     // Iterate the pages loaded counter so we load the next page
                     pagesLoaded++
 
-                    run("https://api.github.com/users/google/repos?page=$pagesLoaded&per_page=$itemsPerPageLoad")
+                    if (!isSearchPerformed) {
+                        run("https://api.github.com/users/google/repos?page=$pagesLoaded&per_page=$itemsPerPageLoad")
+                    } else {
+                        // If we have less search results than however many we tried to load by now,
+                        // Then we are at the end of the list of results
+                        run("https://api.github.com/search/repositories?q=$encodedSearchText+user:google&page=$pagesLoaded&per_page=$itemsPerPageLoad")
+                    }
                 }
             }
         })
@@ -303,10 +369,9 @@ class RepositoryListActivity : AppCompatActivity() {
     }
 
 
-    inner class GetData : AsyncTask<String, Void, String>() {
+    inner class LoadRepositories : AsyncTask<String, Void, String>() {
 
         override fun doInBackground(vararg params: String): String? {
-
             val response = params[0]
             if (response.isEmpty()) {
                 // We did not get a response
@@ -330,7 +395,61 @@ class RepositoryListActivity : AppCompatActivity() {
 
             // Get the range of items added to notify the dataset how many items were added
             val firstItemAdded = (pagesLoaded - 1) * itemsPerPageLoad
-            val lastItemAdded = (pagesLoaded) * itemsPerPageLoad - 1
+            val lastItemAdded = ((pagesLoaded) * itemsPerPageLoad) - 1
+
+            // Check to make sure we still have this view, since the activity could be destroyed
+            if (recycler_repositories != null) {
+                recycler_repositories.adapter?.notifyItemRangeInserted(
+                    firstItemAdded,
+                    lastItemAdded
+                )
+                progress_bar_repositories_page.visibility = View.INVISIBLE
+            }
+
+            if (repositoriesDataset.items.size <= 0) {
+                // No repositories to display in list, show an empty list message
+                recycler_repositories.visibility = View.GONE
+                text_repositories_recycler_empty.visibility = View.VISIBLE
+            } else if (recycler_repositories.visibility == View.GONE) {
+                // If the recycler is hidden and we have items to display, make it visible
+                recycler_repositories.visibility = View.VISIBLE
+                text_repositories_recycler_empty.visibility = View.GONE
+            }
+
+            isPageLoading = false // We are done loading the page
+        }
+    }
+
+    // Loads the repositories after performing a search
+    inner class LoadRepositoriesSearch : AsyncTask<String, Void, String>() {
+
+        override fun doInBackground(vararg params: String): String? {
+            val response = params[0]
+            if (response.isEmpty()) {
+                // We did not get a response
+                Log.e(RepositoryDetailActivity::class.java.simpleName, "No response")
+            }
+
+            val rootObject = JSONObject(response)
+            val repoJsonArray = rootObject.getJSONArray("items")
+
+            for (i in 0 until repoJsonArray.length()) {
+                val jsonRepo = repoJsonArray.getJSONObject(i)
+                repositoriesDataset.addItem(
+                    jsonRepo.getString("id"),
+                    jsonRepo.getString("name"),
+                    jsonRepo.getString("description")
+                )
+            }
+            return "temp"
+        }
+
+        override fun onPostExecute(result: String?) {
+            super.onPostExecute(result)
+            // Get the range of items added to notify the dataset how many items were added
+            val firstItemAdded = (pagesLoaded - 1) * itemsPerPageLoad
+            //val lastItemAdded = min((pagesLoaded) * itemsPerPageLoad - 1, repositoriesDataset.items.size - 1)
+            val lastItemAdded = ((pagesLoaded) * itemsPerPageLoad) - 1
 
             // Check to make sure we still have this view, since the activity could be destroyed
             if (recycler_repositories != null) {
