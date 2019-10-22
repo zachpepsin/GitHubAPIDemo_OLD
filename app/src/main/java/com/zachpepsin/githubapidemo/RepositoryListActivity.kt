@@ -16,6 +16,7 @@ import android.widget.EditText
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -61,9 +62,9 @@ class RepositoryListActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_repository_list)
-
         setSupportActionBar(toolbar)
         toolbar.title = title
+        toolbar.setTitleTextColor(ContextCompat.getColor(this, android.R.color.white))
 
         fab.setOnClickListener {
             // Show dialog to enter search keywords
