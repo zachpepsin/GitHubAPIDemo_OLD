@@ -14,3 +14,4 @@ API: https://developer.github.com/v3/
 - Tablet support (using two-pane Master/Detail flow)
 - Dark mode support (via Android 10 system settings)
 - Ability to search for a repository
+- Translation ready
