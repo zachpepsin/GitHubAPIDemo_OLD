@@ -187,13 +187,13 @@ class RepositoryDetailFragment : Fragment() {
                 "open" -> holder.textNumber.setTextColor(
                     ContextCompat.getColor(
                         holder.textNumber.context,
-                        R.color.stateOpen
+                        R.color.colorPrimary
                     )
                 )
                 "closed" -> holder.textNumber.setTextColor(
                     ContextCompat.getColor(
                         holder.textNumber.context,
-                        R.color.stateClosed
+                        R.color.colorAccent
                     )
                 )
                 else -> Log.wtf(
@@ -305,6 +305,6 @@ class RepositoryDetailFragment : Fragment() {
         const val ARG_ITEM_ID = "item_id"
         const val ARG_REPO_NAME = "repo_name"
         const val ARG_REPO_DESCRIPTION = "repo_description"
-        var repositoryName:String? = null
+        var repositoryName: String? = null
     }
 }
