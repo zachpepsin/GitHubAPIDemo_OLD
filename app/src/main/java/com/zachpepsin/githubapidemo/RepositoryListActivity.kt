@@ -296,6 +296,13 @@ class RepositoryListActivity : AppCompatActivity() {
                         run("https://api.github.com/search/repositories?q=$encodedSearchText+user:google&page=$pagesLoaded&per_page=$itemsPerPageLoad")
                     }
                 }
+
+                // Hide FAB when scrolling down, show when scrolling up
+                if (dy > 0) {
+                    fab.hide()
+                } else {
+                    fab.show()
+                }
             }
         })
     }
