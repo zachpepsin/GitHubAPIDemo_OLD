@@ -10,5 +10,7 @@ API: https://developer.github.com/v3/
 - Add a UI element that allows users to toggle between Closed / Open / All issues
 
 ## Highlights
+- Material design
 - Tablet support (using two-pane Master/Detail flow)
 - Dark mode support (via Android 10 system settings)
+- Ability to search for a repository
