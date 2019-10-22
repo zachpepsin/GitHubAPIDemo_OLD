@@ -119,7 +119,7 @@ class RepositoryDetailFragment : Fragment() {
     }
 
     private fun setupRecyclerView(recyclerView: RecyclerView) {
-        recyclerView.adapter = SimpleItemRecyclerViewAdapter(issuesDataset.items)
+        recyclerView.adapter = IssueItemRecyclerViewAdapter(issuesDataset.items)
 
         progress_bar_issues_center.visibility = View.VISIBLE  // Display the main progress bar
 
@@ -151,10 +151,10 @@ class RepositoryDetailFragment : Fragment() {
         })
     }
 
-    class SimpleItemRecyclerViewAdapter(
+    class IssueItemRecyclerViewAdapter(
         private val values: List<Issues.IssueItem>
     ) :
-        RecyclerView.Adapter<SimpleItemRecyclerViewAdapter.ViewHolder>() {
+        RecyclerView.Adapter<IssueItemRecyclerViewAdapter.ViewHolder>() {
 
         private val onClickListener: View.OnClickListener
 

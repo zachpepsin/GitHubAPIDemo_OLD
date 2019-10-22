@@ -251,7 +251,7 @@ class RepositoryListActivity : AppCompatActivity() {
 
     private fun setupRecyclerView(recyclerView: RecyclerView) {
         recyclerView.adapter =
-            SimpleItemRecyclerViewAdapter(this, repositoriesDataset.items, twoPane)
+            RepositoryItemRecyclerViewAdapter(this, repositoriesDataset.items, twoPane)
 
         progress_bar_repositories_center.visibility = View.VISIBLE  // Display the main progress bar
 
@@ -307,12 +307,12 @@ class RepositoryListActivity : AppCompatActivity() {
         })
     }
 
-    class SimpleItemRecyclerViewAdapter(
+    class RepositoryItemRecyclerViewAdapter(
         private val parentActivity: RepositoryListActivity,
         private val values: List<Repositories.RepositoryItem>,
         private val twoPane: Boolean
     ) :
-        RecyclerView.Adapter<SimpleItemRecyclerViewAdapter.ViewHolder>() {
+        RecyclerView.Adapter<RepositoryItemRecyclerViewAdapter.ViewHolder>() {
 
         private val onClickListener: View.OnClickListener
 
